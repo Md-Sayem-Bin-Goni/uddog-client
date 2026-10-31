@@ -47,27 +47,17 @@ const Banner = () => {
           {/* Buttons */}
           <div className="mt-7 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
 
-            <Button
-              asChild
-              size="lg"
-              className="h-12 w-full rounded-xl bg-blue-600 px-7 text-base hover:bg-blue-700 sm:w-auto dark:bg-blue-600 dark:hover:bg-blue-500"
-            >
-              <Link href="/events">
+            <Link href="/upcomming-events">
+              <Button>
                 Explore Events
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+              </Button>
+            </Link>
 
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="h-12 w-full rounded-xl border-blue-200 bg-white px-7 text-base text-blue-700 hover:bg-blue-50 sm:w-auto dark:border-slate-700 dark:bg-slate-900 dark:text-blue-300 dark:hover:bg-slate-800"
-            >
-              <Link href="/create-event">
-                Create an Event
-              </Link>
-            </Button>
+            <Link href="/upcomming-events">
+              <Button>
+                Explore Events
+              </Button>
+            </Link>
 
           </div>
 

@@ -1,5 +1,4 @@
 import React from "react";
-import Link from "next/link";
 import { ArrowRight, Mail, Send, Sparkles } from "lucide-react";
 
 const Newsletter = () => {

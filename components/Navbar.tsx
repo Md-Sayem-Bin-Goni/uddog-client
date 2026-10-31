@@ -1,50 +1,45 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import logoDark from '@/public/images/logo-light.png'
-import logoLight from '@/public/images/logo-dark.png'
-
+import Image from "next/image";
+import { useTheme } from "next-themes";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
 
 import {
     CalendarDays,
-    ChevronDown,
     LayoutDashboard,
     LogOut,
     Menu,
     Moon,
     PlusCircle,
     Sun,
+    User,
     Users,
     X,
 } from "lucide-react";
 
-import logo from "@/public/images/Uddog Community Impact Logo.png";
-
 import { Button } from "@/components/ui/button";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
 import {
     Avatar,
     AvatarFallback,
     AvatarImage,
 } from "@/components/ui/avatar";
-import Image from "next/image";
 
-// Temporary user data
-const user = {
-    displayName: "Sayem",
-    photoURL: "",
-};
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
 
 const menuItems = [
+    {
+        title: "My Profile",
+        href: "/profile",
+        icon: User,
+    },
     {
         title: "Create Event",
         href: "/create-event",
@@ -64,164 +59,267 @@ const menuItems = [
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const [isDarkMode, setIsDarkMode] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
-    // Sync theme state with HTML root class on mount
+    const { theme, setTheme } = useTheme();
+
+    const { data: session, isPending } = authClient.useSession();
+    const user = session?.user;
+
     useEffect(() => {
-        const isDark = document.documentElement.classList.contains("dark");
-        setIsDarkMode(isDark);
+        setMounted(true);
     }, []);
 
-    // Toggle theme function
+    // Theme Toggle
     const toggleTheme = () => {
-        if (isDarkMode) {
-            document.documentElement.classList.remove("dark");
-            localStorage.setItem("theme", "light");
-            setIsDarkMode(false);
-        } else {
-            document.documentElement.classList.add("dark");
-            localStorage.setItem("theme", "dark");
-            setIsDarkMode(true);
+        setTheme(theme === "dark" ? "light" : "dark");
+    };
+
+    // Logout
+    const handleLogout = async () => {
+        try {
+            const { error } = await authClient.signOut();
+
+            if (error) {
+                toast.error("Logout failed!");
+                return;
+            }
+
+            toast.success("Logout successful!");
+            setIsOpen(false);
+
+        } catch (error) {
+            console.error(error);
+            toast.error("Something went wrong!");
         }
     };
 
-    // Close mobile menu
-    const closeMenu = () => {
-        setIsOpen(false);
-    };
-
-    // Logout function
-    const handleLogout = () => {
-        console.log("Logout clicked");
-        // Add your authentication logout logic here.
-    };
-
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-blue-100 bg-gradient-to-r from-blue-100/95 via-blue-50 to-blue-100/95 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:from-slate-950/95 dark:via-slate-900 dark:to-slate-950/95">
+        <header className="sticky top-0 z-50 w-full border-b border-blue-100 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
 
             <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:h-20 lg:px-8">
 
                 {/* Logo */}
-                <Link href="/" onClick={closeMenu} className="shrink-0">
-                    <Image
-                        src={isDarkMode ? logoDark : logoLight}
-                        alt="Uddog Logo"
-                        width={150}
-                        height={50}
-                        priority
-                    />
+                <Link href="/" className="shrink-0">
+                    <span className="text-2xl font-bold text-blue-600">
+                        Uddog.
+                    </span>
                 </Link>
 
                 {/* Desktop Navigation */}
                 <div className="hidden items-center gap-8 lg:flex">
+
                     <Link
-                        href="/events"
-                        className="flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-blue-600 dark:text-slate-300 dark:hover:text-blue-400"
+                        href="/upcomming-events"
+                        className="flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-blue-600 dark:text-slate-300 dark:hover:text-blue-400"
                     >
                         <CalendarDays size={18} />
                         Upcoming Events
                     </Link>
+
                 </div>
 
-                {/* Desktop Actions (Theme Toggle & Auth) */}
+                {/* Desktop Actions */}
                 <div className="hidden items-center gap-3 lg:flex">
 
-                    {/* Theme Toggle Button */}
+                    {/* Theme Toggle */}
                     <Button
                         variant="ghost"
                         size="icon"
                         onClick={toggleTheme}
-                        aria-label="Toggle theme"
-                        className="rounded-full text-slate-600 hover:bg-blue-100/60 dark:text-slate-300 dark:hover:bg-slate-800"
+                        disabled={!mounted}
                     >
-                        {isDarkMode ? <Sun size={20} className="text-amber-400" /> : <Moon size={20} className="text-slate-700" />}
+                        {mounted && theme === "dark" ? (
+                            <Sun size={20} className="text-amber-400" />
+                        ) : (
+                            <Moon size={20} />
+                        )}
                     </Button>
 
-                    {!user ? (
+                    {/* Authentication */}
+                    {isPending ? (
+                        <div className="h-9 w-24 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
+                    ) : !user ? (
+
                         <Link href="/login">
-                            <Button className="rounded-full bg-blue-600 px-7 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500">
+                            <Button className="rounded-full bg-blue-600 px-7 hover:bg-blue-700">
                                 Login
                             </Button>
                         </Link>
+
                     ) : (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <button className="flex items-center gap-2 rounded-full border border-slate-200 p-1.5 pr-3 transition hover:border-blue-300 hover:bg-blue-50 dark:border-slate-800 dark:hover:border-blue-500/50 dark:hover:bg-slate-900">
+
+                        /* User Popover */
+                        <Popover>
+
+
+                            <Popover>
+                                <PopoverTrigger className="flex items-center gap-2 rounded-full border border-slate-200 p-1.5 pr-3 hover:bg-blue-100 dark:border-slate-700 dark:hover:bg-slate-800">
+
                                     <Avatar className="h-9 w-9">
-                                        <AvatarImage src={user.photoURL} />
-                                        <AvatarFallback className="bg-blue-100 font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                                            {user.displayName.charAt(0)}
+                                        <AvatarImage src={user.image || ""} />
+                                        <AvatarFallback>
+                                            {user.name?.charAt(0)}
                                         </AvatarFallback>
                                     </Avatar>
 
-                                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                                        {user.displayName}
+                                    <span className="text-sm font-semibold">
+                                        {user.name}
                                     </span>
 
-                                    <ChevronDown size={15} className="text-slate-500 dark:text-slate-400" />
-                                </button>
-                            </DropdownMenuTrigger>
+                                </PopoverTrigger>
 
-                            <DropdownMenuContent align="end" className="w-56 p-2 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
-                                <DropdownMenuLabel className="dark:text-slate-200">
-                                    {user.displayName}
-                                </DropdownMenuLabel>
+                                <PopoverContent align="end" className="w-64 p-3">
 
-                                <DropdownMenuSeparator className="dark:bg-slate-800" />
+                                    {/* User Information */}
+                                    <div className="flex items-center gap-3 pb-3">
 
-                                {menuItems.map((item) => {
-                                    const Icon = item.icon;
+                                        <Avatar>
+                                            <AvatarImage src={user.image || ""} />
+                                            <AvatarFallback>
+                                                {user.name?.charAt(0)}
+                                            </AvatarFallback>
+                                        </Avatar>
 
-                                    return (
-                                        <DropdownMenuItem key={item.href} asChild className="dark:focus:bg-slate-800 dark:focus:text-slate-100">
-                                            <Link href={item.href} className="cursor-pointer">
-                                                <Icon className="mr-2 h-4 w-4" />
+                                        <div className="min-w-0">
+                                            <p className="truncate text-sm font-semibold">
+                                                {user.name}
+                                            </p>
+                                            <p className="truncate text-xs text-muted-foreground">
+                                                {user.email}
+                                            </p>
+                                        </div>
+
+                                    </div>
+
+                                    <div className="my-2 border-t" />
+
+                                    {/* Menu Items */}
+                                    {menuItems.map((item) => {
+                                        const Icon = item.icon;
+
+                                        return (
+                                            <Link
+                                                key={item.href}
+                                                href={item.href}
+                                                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-accent"
+                                            >
+                                                <Icon size={17} />
                                                 {item.title}
                                             </Link>
-                                        </DropdownMenuItem>
-                                    );
-                                })}
+                                        );
+                                    })}
 
-                                <DropdownMenuSeparator className="dark:bg-slate-800" />
+                                    <div className="my-2 border-t" />
 
-                                <DropdownMenuItem
+                                    <button
+                                        onClick={handleLogout}
+                                        className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
+                                    >
+                                        <LogOut size={17} />
+                                        Logout
+                                    </button>
+
+                                </PopoverContent>
+                            </Popover>
+
+
+                            <PopoverContent
+                                align="end"
+                                className="w-64 p-3"
+                            >
+
+                                {/* User Information */}
+                                <div className="flex items-center gap-3 pb-3">
+
+                                    <Avatar className="h-10 w-10">
+                                        <AvatarImage src={user.image || ""} />
+                                        <AvatarFallback>
+                                            {user.name?.charAt(0)}
+                                        </AvatarFallback>
+                                    </Avatar>
+
+                                    <div className="min-w-0">
+                                        <p className="truncate text-sm font-semibold">
+                                            {user.name}
+                                        </p>
+
+                                        <p className="truncate text-xs text-muted-foreground">
+                                            {user.email}
+                                        </p>
+                                    </div>
+
+                                </div>
+
+                                <div className="my-2 border-t" />
+
+                                {/* User Routes */}
+                                <div className="space-y-1">
+
+                                    {menuItems.map((item) => {
+                                        const Icon = item.icon;
+
+                                        return (
+                                            <Link
+                                                key={item.href}
+                                                href={item.href}
+                                                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm transition hover:bg-accent hover:text-accent-foreground"
+                                            >
+                                                <Icon size={17} />
+                                                {item.title}
+                                            </Link>
+                                        );
+                                    })}
+
+                                </div>
+
+                                <div className="my-2 border-t" />
+
+                                {/* Logout */}
+                                <button
                                     onClick={handleLogout}
-                                    className="cursor-pointer text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:bg-red-950/50 dark:focus:text-red-400"
+                                    className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-red-500 transition hover:bg-red-50 dark:hover:bg-red-950"
                                 >
-                                    <LogOut className="mr-2 h-4 w-4" />
+                                    <LogOut size={17} />
                                     Logout
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                                </button>
+
+                            </PopoverContent>
+                        </Popover>
                     )}
+
                 </div>
 
                 {/* Mobile Actions */}
-                <div className="flex items-center gap-1 lg:hidden">
+                <div className="flex items-center gap-2 lg:hidden">
 
-                    {/* Mobile Theme Toggle Button */}
                     <Button
                         variant="ghost"
                         size="icon"
                         onClick={toggleTheme}
-                        aria-label="Toggle theme"
-                        className="rounded-full text-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
+                        disabled={!mounted}
                     >
-                        {isDarkMode ? <Sun size={20} className="text-amber-400" /> : <Moon size={20} className="text-slate-700" />}
+                        {mounted && theme === "dark" ? (
+                            <Sun size={20} />
+                        ) : (
+                            <Moon size={20} />
+                        )}
                     </Button>
 
-                    {user && (
-                        <Avatar className="h-9 w-9 ml-1">
-                            <AvatarImage src={user.photoURL} />
-                            <AvatarFallback className="bg-blue-100 font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                                {user.displayName.charAt(0)}
-                            </AvatarFallback>
-                        </Avatar>
+                    {!isPending && user && (
+                        <Link href="/profile">
+                            <Avatar className="h-9 w-9">
+                                <AvatarImage src={user.image || ""} />
+                                <AvatarFallback>
+                                    {user.name?.charAt(0)}
+                                </AvatarFallback>
+                            </Avatar>
+                        </Link>
                     )}
 
-                    {!user && (
-                        <Link href="/login" className="ml-1">
-                            <Button size="sm" className="rounded-full bg-blue-600 px-5 dark:bg-blue-600 dark:hover:bg-blue-500">
+                    {!isPending && !user && (
+                        <Link href="/login">
+                            <Button size="sm" className="bg-blue-600">
                                 Login
                             </Button>
                         </Link>
@@ -231,53 +329,55 @@ const Navbar = () => {
                         variant="ghost"
                         size="icon"
                         onClick={() => setIsOpen(!isOpen)}
-                        aria-label={isOpen ? "Close menu" : "Open menu"}
-                        aria-expanded={isOpen}
-                        className="dark:text-slate-200 dark:hover:bg-slate-800"
                     >
-                        {isOpen ? <X size={24} /> : <Menu size={24} />}
+                        {isOpen ? <X size={23} /> : <Menu size={23} />}
                     </Button>
+
                 </div>
 
             </nav>
 
             {/* Mobile Menu */}
             {isOpen && (
-                <div className="border-t border-blue-100 bg-white px-4 py-4 shadow-lg lg:hidden dark:border-slate-800 dark:bg-slate-900">
+                <div className="border-t border-blue-100 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 lg:hidden">
+
                     <div className="flex flex-col gap-2">
+
                         <Link
-                            href="/events"
-                            onClick={closeMenu}
-                            className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-semibold text-slate-700 transition hover:bg-blue-50 hover:text-blue-600 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-blue-400"
+                            href="/upcomming-events"
+                            onClick={() => setIsOpen(false)}
+                            className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm hover:bg-accent"
                         >
-                            <CalendarDays size={19} />
+                            <CalendarDays size={18} />
                             Upcoming Events
                         </Link>
 
                         {user && (
                             <>
-                                <div className="my-2 border-t border-slate-100 dark:border-slate-800" />
+                                <div className="my-2 border-t" />
 
                                 {/* User Information */}
                                 <div className="flex items-center gap-3 px-3 py-2">
-                                    <Avatar className="h-10 w-10">
-                                        <AvatarImage src={user.photoURL} />
-                                        <AvatarFallback className="bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                                            {user.displayName.charAt(0)}
+
+                                    <Avatar>
+                                        <AvatarImage src={user.image || ""} />
+                                        <AvatarFallback>
+                                            {user.name?.charAt(0)}
                                         </AvatarFallback>
                                     </Avatar>
 
                                     <div>
-                                        <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                                            {user.displayName}
+                                        <p className="text-sm font-semibold">
+                                            {user.name}
                                         </p>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400">
-                                            Welcome back!
+                                        <p className="text-xs text-muted-foreground">
+                                            {user.email}
                                         </p>
                                     </div>
+
                                 </div>
 
-                                {/* User Menu Items */}
+                                {/* User Routes */}
                                 {menuItems.map((item) => {
                                     const Icon = item.icon;
 
@@ -285,30 +385,29 @@ const Navbar = () => {
                                         <Link
                                             key={item.href}
                                             href={item.href}
-                                            onClick={closeMenu}
-                                            className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-slate-700 transition hover:bg-blue-50 hover:text-blue-600 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-blue-400"
+                                            onClick={() => setIsOpen(false)}
+                                            className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm hover:bg-accent"
                                         >
-                                            <Icon size={19} />
+                                            <Icon size={18} />
                                             {item.title}
                                         </Link>
                                     );
                                 })}
 
-                                <div className="my-2 border-t border-slate-100 dark:border-slate-800" />
+                                <div className="my-2 border-t" />
 
                                 {/* Mobile Logout */}
                                 <button
-                                    onClick={() => {
-                                        closeMenu();
-                                        handleLogout();
-                                    }}
-                                    className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+                                    onClick={handleLogout}
+                                    className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
                                 >
-                                    <LogOut size={19} />
+                                    <LogOut size={18} />
                                     Logout
                                 </button>
+
                             </>
                         )}
+
                     </div>
                 </div>
             )}
