@@ -1,9 +1,9 @@
 
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
@@ -19,17 +19,17 @@ import {
     User,
     Users,
     X,
+    ChevronDown,
+    Sparkles,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+
 import {
     Avatar,
     AvatarFallback,
     AvatarImage,
 } from "@/components/ui/avatar";
-
-// No-op subscribe: the "mounted" flag never changes after first client render.
-const emptySubscribe = () => () => { };
 
 import {
     Popover,
@@ -61,23 +61,30 @@ const menuItems = [
 ];
 
 const Navbar = () => {
-    const [isOpen, setIsOpen] = useState(false);
+    const pathname = usePathname();
 
-    // Hydration-safe "mounted" flag: server snapshot false, client snapshot
-    // true — avoids the setState-in-effect lint error and theme icon mismatch.
-    const mounted = useSyncExternalStore(
-        emptySubscribe,
-        () => true,
-        () => false
-    );
-    const [mmounted, setMounted] = useState(false);
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
     const { theme, setTheme } = useTheme();
 
     const { data: session, isPending } = authClient.useSession();
+
     const user = session?.user;
 
-    // Theme Toggle
+    // Mounted check for theme
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // Close menus when route changes
+    useEffect(() => {
+        setIsProfileOpen(false);
+        setIsOpen(false);
+    }, [pathname]);
+
+    // Theme toggle
     const toggleTheme = () => {
         setTheme(theme === "dark" ? "light" : "dark");
     };
@@ -92,233 +99,221 @@ const Navbar = () => {
                 return;
             }
 
-            toast.success("Logout successful!");
+            setIsProfileOpen(false);
             setIsOpen(false);
 
+            toast.success("Logout successful!");
         } catch (error) {
             console.error(error);
             toast.error("Something went wrong!");
         }
     };
 
+    // User initial
+    const userInitial = user?.name?.charAt(0)?.toUpperCase() || "U";
+
+    // Theme button
+    const ThemeButton = () => (
+        <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            disabled={!mounted}
+            aria-label="Toggle theme"
+            className="rounded-xl border border-blue-100 bg-white/70 text-slate-700 shadow-sm transition-all hover:bg-blue-100 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+        >
+            {mounted && theme === "dark" ? (
+                <Sun size={19} className="text-amber-400" />
+            ) : (
+                <Moon size={19} className="text-blue-600 dark:text-blue-400" />
+            )}
+        </Button>
+    );
+
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-blue-100 bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+        <header className="sticky top-0 z-50 w-full border-b border-blue-100/80 bg-white/85 shadow-sm shadow-blue-100/20 backdrop-blur-2xl dark:border-slate-800 dark:bg-slate-950/85 dark:shadow-none">
 
             <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:h-20 lg:px-8">
 
                 {/* Logo */}
-                <Link href="/" className="shrink-0">
-                    <span className="text-2xl font-bold text-blue-600">
-                        Uddog.
+                <Link
+                    href="/"
+                    onClick={() => {
+                        setIsOpen(false);
+                        setIsProfileOpen(false);
+                    }}
+                    className="group flex shrink-0 items-center gap-2"
+                >
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-105">
+                        <Sparkles size={21} />
+                    </div>
+
+                    <span className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                        Uddog
+                        <span className="text-blue-600 dark:text-blue-400">.</span>
                     </span>
                 </Link>
 
                 {/* Desktop Navigation */}
-                <div className="hidden items-center gap-8 lg:flex">
-
+                <div className="hidden items-center gap-2 lg:flex">
                     <Link
                         href="/upcomming-events"
-                        className="flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-blue-600 dark:text-slate-300 dark:hover:text-blue-400"
+                        className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 ${
+                            pathname === "/upcomming-events"
+                                ? "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400"
+                                : "text-slate-600 hover:bg-blue-50 hover:text-blue-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-blue-400"
+                        }`}
                     >
                         <CalendarDays size={18} />
                         Upcoming Events
                     </Link>
-
                 </div>
 
                 {/* Desktop Actions */}
                 <div className="hidden items-center gap-3 lg:flex">
 
-                    {/* Theme Toggle */}
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={toggleTheme}
-                        disabled={!mounted}
-                    >
-                        {mounted && theme === "dark" ? (
-                            <Sun size={20} className="text-amber-400" />
-                        ) : (
-                            <Moon size={20} />
-                        )}
-                    </Button>
+                    <ThemeButton />
 
-                    {/* Authentication */}
                     {isPending ? (
-                        <div className="h-9 w-24 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
+                        <div className="h-10 w-32 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
                     ) : !user ? (
-
                         <Link href="/login">
-                            <Button className="rounded-full bg-blue-600 px-7 hover:bg-blue-700">
+                            <Button className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-7 font-semibold text-white shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5 hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl">
                                 Login
                             </Button>
                         </Link>
-
                     ) : (
 
-                        /* User Popover */
-                        <Popover>
+                        /* User Profile Popover */
+                        <Popover
+                            open={isProfileOpen}
+                            onOpenChange={setIsProfileOpen}
+                        >
+                            <PopoverTrigger
+                                className="flex items-center gap-2 rounded-xl border border-blue-100 bg-white/70 px-3 py-2 text-slate-700 shadow-sm transition-all hover:border-blue-300 hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                            >
+                                <Avatar className="h-9 w-9 border-2 border-blue-100 dark:border-slate-700">
+                                    <AvatarImage src={user.image || ""} />
+                                    <AvatarFallback className="bg-gradient-to-br from-blue-600 to-indigo-600 font-bold text-white">
+                                        {userInitial}
+                                    </AvatarFallback>
+                                </Avatar>
 
+                                <span className="max-w-28 truncate text-sm font-semibold">
+                                    {user.name}
+                                </span>
 
-                            <Popover>
-                                <PopoverTrigger className="flex items-center gap-2 rounded-full border border-slate-200 p-1.5 pr-3 hover:bg-blue-100 dark:border-slate-700 dark:hover:bg-slate-800">
-
-                                    <Avatar className="h-9 w-9">
-                                        <AvatarImage src={user.image || ""} />
-                                        <AvatarFallback>
-                                            {user.name?.charAt(0)}
-                                        </AvatarFallback>
-                                    </Avatar>
-
-                                    <span className="text-sm font-semibold">
-                                        {user.name}
-                                    </span>
-
-                                </PopoverTrigger>
-
-                                <PopoverContent align="end" className="w-64 p-3">
-
-                                    {/* User Information */}
-                                    <div className="flex items-center gap-3 pb-3">
-
-                                        <Avatar>
-                                            <AvatarImage src={user.image || ""} />
-                                            <AvatarFallback>
-                                                {user.name?.charAt(0)}
-                                            </AvatarFallback>
-                                        </Avatar>
-
-                                        <div className="min-w-0">
-                                            <p className="truncate text-sm font-semibold">
-                                                {user.name}
-                                            </p>
-                                            <p className="truncate text-xs text-muted-foreground">
-                                                {user.email}
-                                            </p>
-                                        </div>
-
-                                    </div>
-
-                                    <div className="my-2 border-t" />
-
-                                    {/* Menu Items */}
-                                    {menuItems.map((item) => {
-                                        const Icon = item.icon;
-
-                                        return (
-                                            <Link
-                                                key={item.href}
-                                                href={item.href}
-                                                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-accent"
-                                            >
-                                                <Icon size={17} />
-                                                {item.title}
-                                            </Link>
-                                        );
-                                    })}
-
-                                    <div className="my-2 border-t" />
-
-                                    <button
-                                        onClick={handleLogout}
-                                        className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
-                                    >
-                                        <LogOut size={17} />
-                                        Logout
-                                    </button>
-
-                                </PopoverContent>
-                            </Popover>
-
+                                <ChevronDown
+                                    size={16}
+                                    className={`transition-transform duration-200 ${
+                                        isProfileOpen ? "rotate-180" : ""
+                                    }`}
+                                />
+                            </PopoverTrigger>
 
                             <PopoverContent
                                 align="end"
-                                className="w-64 p-3"
+                                sideOffset={12}
+                                className="w-72 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl shadow-slate-900/10 dark:border-slate-700 dark:bg-slate-900 dark:shadow-black/30"
                             >
 
-                                {/* User Information */}
-                                <div className="flex items-center gap-3 pb-3">
+                                {/* Profile Header */}
+                                <div className="rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 p-4 text-white">
+                                    <div className="flex items-center gap-3">
 
-                                    <Avatar className="h-10 w-10">
-                                        <AvatarImage src={user.image || ""} />
-                                        <AvatarFallback>
-                                            {user.name?.charAt(0)}
-                                        </AvatarFallback>
-                                    </Avatar>
+                                        <Avatar className="h-12 w-12 border-2 border-white/40">
+                                            <AvatarImage src={user.image || ""} />
+                                            <AvatarFallback className="bg-white/20 font-bold text-white">
+                                                {userInitial}
+                                            </AvatarFallback>
+                                        </Avatar>
 
-                                    <div className="min-w-0">
-                                        <p className="truncate text-sm font-semibold">
-                                            {user.name}
-                                        </p>
+                                        <div className="min-w-0 flex-1">
+                                            <p className="truncate text-sm font-bold">
+                                                {user.name}
+                                            </p>
 
-                                        <p className="truncate text-xs text-muted-foreground">
-                                            {user.email}
-                                        </p>
+                                            <p className="truncate text-xs text-blue-100">
+                                                {user.email}
+                                            </p>
+                                        </div>
                                     </div>
 
+                                    <div className="mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-blue-100">
+                                        <Sparkles size={13} />
+                                        Welcome to Uddog
+                                    </div>
                                 </div>
 
-                                <div className="my-2 border-t" />
-
-                                {/* User Routes */}
-                                <div className="space-y-1">
-
+                                {/* Menu Items */}
+                                <div className="my-2 space-y-1">
                                     {menuItems.map((item) => {
                                         const Icon = item.icon;
+                                        const isActive = pathname === item.href;
 
                                         return (
                                             <Link
                                                 key={item.href}
                                                 href={item.href}
-                                                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm transition hover:bg-accent hover:text-accent-foreground"
+                                                onClick={() => setIsProfileOpen(false)}
+                                                className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-200 ${
+                                                    isActive
+                                                        ? "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400"
+                                                        : "text-slate-600 hover:bg-blue-50 hover:text-blue-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-blue-400"
+                                                }`}
                                             >
-                                                <Icon size={17} />
+                                                <div
+                                                    className={`flex h-8 w-8 items-center justify-center rounded-lg ${
+                                                        isActive
+                                                            ? "bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400"
+                                                            : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                                                    }`}
+                                                >
+                                                    <Icon size={17} />
+                                                </div>
+
                                                 {item.title}
+
+                                                {isActive && (
+                                                    <span className="ml-auto h-2 w-2 rounded-full bg-blue-600" />
+                                                )}
                                             </Link>
                                         );
                                     })}
-
                                 </div>
 
-                                <div className="my-2 border-t" />
-
                                 {/* Logout */}
-                                <button
-                                    onClick={handleLogout}
-                                    className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-red-500 transition hover:bg-red-50 dark:hover:bg-red-950"
-                                >
-                                    <LogOut size={17} />
-                                    Logout
-                                </button>
+                                <div className="border-t border-slate-100 pt-2 dark:border-slate-800">
+                                    <button
+                                        onClick={handleLogout}
+                                        className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-red-500 transition-all duration-200 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
+                                    >
+                                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 dark:bg-red-500/10">
+                                            <LogOut size={17} />
+                                        </div>
+                                        Logout
+                                    </button>
+                                </div>
 
                             </PopoverContent>
                         </Popover>
                     )}
-
                 </div>
 
                 {/* Mobile Actions */}
                 <div className="flex items-center gap-2 lg:hidden">
 
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={toggleTheme}
-                        disabled={!mounted}
-                    >
-                        {mounted && theme === "dark" ? (
-                            <Sun size={20} />
-                        ) : (
-                            <Moon size={20} />
-                        )}
-                    </Button>
+                    <ThemeButton />
 
                     {!isPending && user && (
-                        <Link href="/profile">
-                            <Avatar className="h-9 w-9">
+                        <Link
+                            href="/profile"
+                            onClick={() => setIsOpen(false)}
+                        >
+                            <Avatar className="h-9 w-9 border-2 border-blue-100 dark:border-slate-700">
                                 <AvatarImage src={user.image || ""} />
-                                <AvatarFallback>
-                                    {user.name?.charAt(0)}
+                                <AvatarFallback className="bg-gradient-to-br from-blue-600 to-indigo-600 font-bold text-white">
+                                    {userInitial}
                                 </AvatarFallback>
                             </Avatar>
                         </Link>
@@ -326,7 +321,10 @@ const Navbar = () => {
 
                     {!isPending && !user && (
                         <Link href="/login">
-                            <Button size="sm" className="bg-blue-600">
+                            <Button
+                                size="sm"
+                                className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 font-semibold text-white"
+                            >
                                 Login
                             </Button>
                         </Link>
@@ -335,89 +333,101 @@ const Navbar = () => {
                     <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => setIsOpen(!isOpen)}
+                        aria-label="Toggle menu"
+                        onClick={() => setIsOpen((prev) => !prev)}
+                        className="rounded-xl text-slate-700 hover:bg-blue-50 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                         {isOpen ? <X size={23} /> : <Menu size={23} />}
                     </Button>
-
                 </div>
 
             </nav>
 
             {/* Mobile Menu */}
-            {isOpen && (
-                <div className="border-t border-blue-100 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 lg:hidden">
+            <div
+                className={`overflow-hidden border-t border-blue-100 bg-white transition-all duration-300 dark:border-slate-800 dark:bg-slate-950 lg:hidden ${
+                    isOpen
+                        ? "max-h-[650px] opacity-100"
+                        : "max-h-0 border-t-0 opacity-0"
+                }`}
+            >
+                <div className="mx-auto max-w-7xl space-y-2 px-4 py-4 sm:px-6">
 
-                    <div className="flex flex-col gap-2">
+                    {/* Upcoming Events */}
+                    <Link
+                        href="/upcomming-events"
+                        onClick={() => setIsOpen(false)}
+                        className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${
+                            pathname === "/upcomming-events"
+                                ? "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400"
+                                : "text-slate-600 hover:bg-blue-50 hover:text-blue-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                        }`}
+                    >
+                        <CalendarDays size={19} />
+                        Upcoming Events
+                    </Link>
 
-                        <Link
-                            href="/upcomming-events"
-                            onClick={() => setIsOpen(false)}
-                            className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm hover:bg-accent"
-                        >
-                            <CalendarDays size={18} />
-                            Upcoming Events
-                        </Link>
-
-                        {user && (
-                            <>
-                                <div className="my-2 border-t" />
-
-                                {/* User Information */}
-                                <div className="flex items-center gap-3 px-3 py-2">
-
-                                    <Avatar>
+                    {user && (
+                        <>
+                            {/* Mobile User Info */}
+                            <div className="my-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 p-4 text-white">
+                                <div className="flex items-center gap-3">
+                                    <Avatar className="h-11 w-11 border-2 border-white/40">
                                         <AvatarImage src={user.image || ""} />
-                                        <AvatarFallback>
-                                            {user.name?.charAt(0)}
+                                        <AvatarFallback className="bg-white/20 font-bold text-white">
+                                            {userInitial}
                                         </AvatarFallback>
                                     </Avatar>
 
-                                    <div>
-                                        <p className="text-sm font-semibold">
+                                    <div className="min-w-0">
+                                        <p className="truncate text-sm font-bold">
                                             {user.name}
                                         </p>
-                                        <p className="text-xs text-muted-foreground">
+
+                                        <p className="truncate text-xs text-blue-100">
                                             {user.email}
                                         </p>
                                     </div>
-
                                 </div>
+                            </div>
 
-                                {/* User Routes */}
-                                {menuItems.map((item) => {
-                                    const Icon = item.icon;
+                            {/* Mobile User Routes */}
+                            {menuItems.map((item) => {
+                                const Icon = item.icon;
+                                const isActive = pathname === item.href;
 
-                                    return (
-                                        <Link
-                                            key={item.href}
-                                            href={item.href}
-                                            onClick={() => setIsOpen(false)}
-                                            className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm hover:bg-accent"
-                                        >
-                                            <Icon size={18} />
-                                            {item.title}
-                                        </Link>
-                                    );
-                                })}
+                                return (
+                                    <Link
+                                        key={item.href}
+                                        href={item.href}
+                                        onClick={() => setIsOpen(false)}
+                                        className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
+                                            isActive
+                                                ? "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400"
+                                                : "text-slate-600 hover:bg-blue-50 hover:text-blue-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                                        }`}
+                                    >
+                                        <Icon size={19} />
+                                        {item.title}
+                                    </Link>
+                                );
+                            })}
 
-                                <div className="my-2 border-t" />
-
-                                {/* Mobile Logout */}
+                            {/* Mobile Logout */}
+                            <div className="border-t border-slate-100 pt-2 dark:border-slate-800">
                                 <button
                                     onClick={handleLogout}
-                                    className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
+                                    className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-red-500 transition hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
                                 >
-                                    <LogOut size={18} />
+                                    <LogOut size={19} />
                                     Logout
                                 </button>
+                            </div>
+                        </>
+                    )}
 
-                            </>
-                        )}
-
-                    </div>
                 </div>
-            )}
+            </div>
 
         </header>
     );

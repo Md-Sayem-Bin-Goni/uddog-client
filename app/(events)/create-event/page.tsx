@@ -1,8 +1,19 @@
-
 "use client";
 
 import React, { useState } from "react";
-import { CalendarDays, MapPin, ImagePlus, PlusCircle } from "lucide-react";
+import {
+    CalendarDays,
+    MapPin,
+    ImagePlus,
+    PlusCircle,
+    Sparkles,
+    ArrowRight,
+    Loader2,
+    Type,
+    AlignLeft,
+    Tag,
+    CheckCircle2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 
@@ -26,8 +37,12 @@ const CreateEventPage = () => {
     });
 
     const [error, setError] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
 
-    // Today's date in YYYY-MM-DD format
+    const { data: session } = authClient.useSession();
+
+    // Today's date
     const today = new Date();
     const minDate = [
         today.getFullYear(),
@@ -46,10 +61,10 @@ const CreateEventPage = () => {
             ...formData,
             [name]: value,
         });
-    };
 
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const { data: session } = authClient.useSession()
+        setError("");
+        setIsSuccess(false);
+    };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -57,6 +72,12 @@ const CreateEventPage = () => {
         if (isSubmitting) return;
 
         setError("");
+        setIsSuccess(false);
+
+        if (!session?.user?.email) {
+            setError("Please sign in before creating an event.");
+            return;
+        }
 
         if (!formData.eventDate || formData.eventDate <= minDate) {
             setError("Please select a future event date.");
@@ -73,19 +94,18 @@ const CreateEventPage = () => {
                 },
                 body: JSON.stringify({
                     ...formData,
-                    createdBy: session?.user.email,
-                })
+                    createdBy: session.user.email,
+                }),
             });
 
             const result = await response.json();
 
             if (!response.ok) {
-                throw new Error(result.message || "Failed to add event");
+                throw new Error(result.message || "Failed to create event.");
             }
 
-            console.log(result);
+            setIsSuccess(true);
 
-            // Reset form after successful submission
             setFormData({
                 title: "",
                 description: "",
@@ -96,39 +116,75 @@ const CreateEventPage = () => {
             });
 
         } catch (error) {
-            setError(error instanceof Error ? error.message : "Something went wrong");
+            setError(
+                error instanceof Error
+                    ? error.message
+                    : "Something went wrong. Please try again."
+            );
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    return (
-        <div className="min-h-screen bg-slate-50 px-4 py-12 dark:bg-slate-950">
-            <div className="mx-auto max-w-3xl">
+    const inputClass =
+        "w-full rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3.5 text-sm text-slate-800 outline-none transition-all placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:bg-slate-800/70 dark:text-white dark:focus:border-blue-400 dark:focus:bg-slate-800";
 
-                {/* Heading */}
-                <div className="mb-8 text-center">
-                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400">
-                        <PlusCircle size={28} />
+    const labelClass =
+        "mb-2.5 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200";
+
+    return (
+        <section className="relative min-h-screen overflow-hidden bg-slate-50 px-4 py-12 dark:bg-[#0B1220] md:px-8">
+
+            {/* Background Decoration */}
+            <div className="pointer-events-none absolute -left-40 top-20 h-96 w-96 rounded-full bg-blue-400/10 blur-3xl" />
+            <div className="pointer-events-none absolute -right-40 bottom-10 h-96 w-96 rounded-full bg-indigo-400/10 blur-3xl" />
+
+            <div className="relative mx-auto max-w-3xl">
+
+                {/* Header */}
+                <div className="mb-10 text-center">
+
+                    <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-500/25">
+                        <PlusCircle size={32} />
                     </div>
 
-                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-                        Create an Event
+                    <div className="mb-3 flex items-center justify-center gap-2 text-xs font-bold tracking-[0.2em] text-blue-600 dark:text-blue-400">
+                        <Sparkles size={15} />
+                        MAKE AN IMPACT
+                    </div>
+
+                    <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-5xl">
+                        Create an{" "}
+                        <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                            Event
+                        </span>
                     </h1>
 
-                    <p className="mt-2 text-slate-500 dark:text-slate-400">
-                        Make a difference in your community by organizing an event.
+                    <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-slate-500 dark:text-slate-400 md:text-base">
+                        Bring people together, inspire change, and make a
+                        difference in your community.
                     </p>
                 </div>
 
                 {/* Form Card */}
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+                <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl shadow-blue-100/40 dark:border-slate-700 dark:bg-[#172033] dark:shadow-none">
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Card Header */}
+                    <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600 px-6 py-5 text-white sm:px-8">
+                        <h2 className="text-lg font-bold">
+                            Event Information
+                        </h2>
+                        <p className="mt-1 text-sm text-blue-100">
+                            Fill in the details to publish your event.
+                        </p>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-6 p-6 sm:p-8">
 
                         {/* Event Title */}
                         <div>
-                            <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            <label className={labelClass}>
+                                <Type size={17} className="text-blue-600" />
                                 Event Title *
                             </label>
 
@@ -137,15 +193,16 @@ const CreateEventPage = () => {
                                 name="title"
                                 value={formData.title}
                                 onChange={handleChange}
-                                placeholder="Enter event title"
+                                placeholder="e.g. Community Cleanup Campaign"
                                 required
-                                className="w-full rounded-lg border border-slate-300 bg-transparent px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:text-white"
+                                className={inputClass}
                             />
                         </div>
 
-                        {/* Event Description */}
+                        {/* Description */}
                         <div>
-                            <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            <label className={labelClass}>
+                                <AlignLeft size={17} className="text-blue-600" />
                                 Event Description *
                             </label>
 
@@ -153,17 +210,18 @@ const CreateEventPage = () => {
                                 name="description"
                                 value={formData.description}
                                 onChange={handleChange}
-                                placeholder="Describe your event..."
+                                placeholder="Tell people what this event is about..."
                                 rows={5}
                                 required
-                                className="w-full resize-none rounded-lg border border-slate-300 bg-transparent px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:text-white"
+                                className={`${inputClass} resize-none`}
                             />
                         </div>
 
                         {/* Event Type */}
                         <div>
-                            <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-                                Event Type *
+                            <label className={labelClass}>
+                                <Tag size={17} className="text-blue-600" />
+                                Event Category *
                             </label>
 
                             <select
@@ -171,9 +229,9 @@ const CreateEventPage = () => {
                                 value={formData.eventType}
                                 onChange={handleChange}
                                 required
-                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                                className={inputClass}
                             >
-                                <option value="">Select event type</option>
+                                <option value="">Choose a category</option>
 
                                 {eventTypes.map((type) => (
                                     <option key={type} value={type}>
@@ -183,10 +241,10 @@ const CreateEventPage = () => {
                             </select>
                         </div>
 
-                        {/* Thumbnail URL */}
+                        {/* Thumbnail */}
                         <div>
-                            <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
-                                <ImagePlus size={17} />
+                            <label className={labelClass}>
+                                <ImagePlus size={17} className="text-blue-600" />
                                 Thumbnail Image URL *
                             </label>
 
@@ -197,16 +255,29 @@ const CreateEventPage = () => {
                                 onChange={handleChange}
                                 placeholder="https://example.com/image.jpg"
                                 required
-                                className="w-full rounded-lg border border-slate-300 bg-transparent px-4 py-3 outline-none focus:border-blue-500 dark:border-slate-700 dark:text-white"
+                                className={inputClass}
                             />
+
+                            {formData.thumbnail && (
+                                <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700">
+                                    <img
+                                        src={formData.thumbnail}
+                                        alt="Event preview"
+                                        className="h-48 w-full object-cover"
+                                        onError={(e) => {
+                                            e.currentTarget.style.display = "none";
+                                        }}
+                                    />
+                                </div>
+                            )}
                         </div>
 
-                        {/* Location & Date */}
+                        {/* Location and Date */}
                         <div className="grid gap-6 sm:grid-cols-2">
 
                             <div>
-                                <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
-                                    <MapPin size={17} />
+                                <label className={labelClass}>
+                                    <MapPin size={17} className="text-blue-600" />
                                     Event Location *
                                 </label>
 
@@ -217,13 +288,13 @@ const CreateEventPage = () => {
                                     onChange={handleChange}
                                     placeholder="Enter event location"
                                     required
-                                    className="w-full rounded-lg border border-slate-300 bg-transparent px-4 py-3 outline-none focus:border-blue-500 dark:border-slate-700 dark:text-white"
+                                    className={inputClass}
                                 />
                             </div>
 
                             <div>
-                                <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
-                                    <CalendarDays size={17} />
+                                <label className={labelClass}>
+                                    <CalendarDays size={17} className="text-blue-600" />
                                     Event Date *
                                 </label>
 
@@ -234,30 +305,60 @@ const CreateEventPage = () => {
                                     onChange={handleChange}
                                     min={minDate}
                                     required
-                                    className="w-full rounded-lg border border-slate-300 bg-transparent px-4 py-3 outline-none focus:border-blue-500 dark:border-slate-700 dark:text-white"
+                                    className={inputClass}
                                 />
                             </div>
 
                         </div>
 
+                        {/* Error Message */}
                         {error && (
-                            <p className="text-sm text-red-500">{error}</p>
+                            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400">
+                                {error}
+                            </div>
+                        )}
+
+                        {/* Success Message */}
+                        {isSuccess && (
+                            <div className="flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700 dark:border-green-500/20 dark:bg-green-500/10 dark:text-green-400">
+                                <CheckCircle2 size={18} />
+                                Your event has been created successfully!
+                            </div>
                         )}
 
                         {/* Submit Button */}
-                        <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? "Submitting..." : "Add Event"}
+                        <Button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="h-13 w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-base font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                            {isSubmitting ? (
+                                <>
+                                    <Loader2 className="mr-2 animate-spin" size={19} />
+                                    Creating Event...
+                                </>
+                            ) : (
+                                <>
+                                    Create Event
+                                    <ArrowRight className="ml-2" size={19} />
+                                </>
+                            )}
                         </Button>
+
+                        <p className="text-center text-xs text-slate-400">
+                            By creating this event, you're helping build a stronger community.
+                        </p>
 
                     </form>
                 </div>
 
-                <p className="mt-5 text-center text-sm text-slate-500 dark:text-slate-400">
+                {/* Footer */}
+                <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
                     Together, we can make our community a better place.
                 </p>
 
             </div>
-        </div>
+        </section>
     );
 };
 
