@@ -214,7 +214,7 @@ const RecentUpcommingSection = () => {
                         </div>
 
                         <Link
-                            href="/dashboard/manage-events"
+                            href="/create-event"
                             className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 hover:shadow-blue-300 dark:shadow-none"
                         >
                             Create Event

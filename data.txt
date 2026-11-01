@@ -1,0 +1,107 @@
+[
+  {
+    "title": "Dhaka Tech Innovation Summit 2026",
+    "description": "A technology summit bringing together developers, entrepreneurs, and IT professionals to discuss AI, web development, startups, and future technologies.",
+    "eventType": "Technology",
+    "thumbnail": "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200",
+    "location": "Bangabandhu International Conference Center, Dhaka",
+    "eventDate": "2026-11-15",
+    "createdBy": "rabby@gmail.com"
+  },
+  {
+    "title": "Kushtia Youth Programming Meetup",
+    "description": "A local programming meetup for students and beginner developers. Participants can share projects, learn programming concepts, and connect with other developers.",
+    "eventType": "Education",
+    "thumbnail": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1200",
+    "location": "Kushtia Polytechnic Institute, Kushtia",
+    "eventDate": "2026-11-20",
+    "createdBy": "rabby@gmail.com"
+  },
+  {
+    "title": "Cox's Bazar Beach Cleanup Campaign",
+    "description": "Join a community-driven environmental campaign to clean the beach, raise awareness about plastic pollution, and protect marine ecosystems.",
+    "eventType": "Social Work",
+    "thumbnail": "https://images.unsplash.com/photo-1473116763249-2faaef81ccda?w=1200",
+    "location": "Laboni Beach, Cox's Bazar",
+    "eventDate": "2026-11-25",
+    "createdBy": "rabby@gmail.com"
+  },
+  {
+    "title": "Bangladesh Startup & Entrepreneurship Fair",
+    "description": "An entrepreneurship event where aspiring founders can showcase startup ideas, meet investors, and learn about business development.",
+    "eventType": "Business",
+    "thumbnail": "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=1200",
+    "location": "Bangladesh Shilpakala Academy, Dhaka",
+    "eventDate": "2026-12-05",
+    "createdBy": "rabby@gmail.com"
+  },
+  {
+    "title": "Rajshahi Winter Photography Festival",
+    "description": "A photography gathering for beginners and professionals featuring photo exhibitions, outdoor photography sessions, and creative workshops.",
+    "eventType": "Photography",
+    "thumbnail": "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=1200",
+    "location": "Padma Garden, Rajshahi",
+    "eventDate": "2026-12-12",
+    "createdBy": "rabby@gmail.com"
+  }
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+[
+  {
+    "title": "National Blood Donation Awareness Camp",
+    "description": "A voluntary blood donation awareness program to encourage young people to donate blood and help patients in need. Free blood group testing and health awareness sessions will also be arranged.",
+    "eventType": "Health",
+    "thumbnail": "https://images.unsplash.com/photo-1615461066841-6116e61058f4?w=1200",
+    "location": "Dhaka Medical College Hospital, Dhaka",
+    "eventDate": "2026-11-18",
+    "createdBy": "mdsayembingoniamla@gmail.com"
+  },
+  {
+    "title": "Sundarbans Nature & Wildlife Photography Tour",
+    "description": "Explore the natural beauty of the Sundarbans through a guided photography tour. Participants will learn wildlife photography techniques and environmental conservation practices.",
+    "eventType": "Photography",
+    "thumbnail": "https://images.unsplash.com/photo-1448375240586-882707db888b?w=1200",
+    "location": "Karamjal Tourist Center, Mongla, Bagerhat",
+    "eventDate": "2026-11-28",
+    "createdBy": "mdsayembingoniamla@gmail.com"
+  },
+  {
+    "title": "Women in Technology Bangladesh Meetup",
+    "description": "An inspiring networking event celebrating women in technology. Software engineers, students, and entrepreneurs will share career experiences and discuss opportunities in the technology industry.",
+    "eventType": "Networking",
+    "thumbnail": "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=1200",
+    "location": "BRAC University, Merul Badda, Dhaka",
+    "eventDate": "2026-12-03",
+    "createdBy": "mdsayembingoniamla@gmail.com"
+  },
+  {
+    "title": "Sylhet Tea Garden Cultural Festival",
+    "description": "Experience the cultural heritage and natural beauty of Sylhet through traditional music, local food, cultural performances, and tea garden exploration.",
+    "eventType": "Cultural",
+    "thumbnail": "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=1200",
+    "location": "Malnicherra Tea Estate, Sylhet",
+    "eventDate": "2026-12-10",
+    "createdBy": "mdsayembingoniamla@gmail.com"
+  },
+  {
+    "title": "Chittagong Coastal Cycling Challenge",
+    "description": "A community cycling event promoting fitness, healthy lifestyles, and road safety. Cyclists will enjoy a scenic coastal route and participate in friendly challenges.",
+    "eventType": "Sports",
+    "thumbnail": "https://images.unsplash.com/photo-1544191696-15693072a9e4?w=1200",
+    "location": "Patenga Sea Beach, Chattogram",
+    "eventDate": "2026-12-20",
+    "createdBy": "mdsayembingoniamla@gmail.com"
+  }
+]

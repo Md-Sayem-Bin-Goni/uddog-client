@@ -16,6 +16,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
+import { redirect, useRouter } from "next/navigation";
+import { toast } from "@/components/ui/toast";
+import { Toast } from "@base-ui/react";
 
 const eventTypes = [
     "Cleanup",
@@ -27,6 +30,7 @@ const eventTypes = [
 ];
 
 const CreateEventPage = () => {
+    const router = useRouter();
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -65,6 +69,7 @@ const CreateEventPage = () => {
         setError("");
         setIsSuccess(false);
     };
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -115,6 +120,11 @@ const CreateEventPage = () => {
                 eventDate: "",
             });
 
+            // Toast.success("Event created successfully!");
+
+            router.push("/manage-events");
+            router.refresh();
+
         } catch (error) {
             setError(
                 error instanceof Error
@@ -125,6 +135,7 @@ const CreateEventPage = () => {
             setIsSubmitting(false);
         }
     };
+
 
     const inputClass =
         "w-full rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3.5 text-sm text-slate-800 outline-none transition-all placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:bg-slate-800/70 dark:text-white dark:focus:border-blue-400 dark:focus:bg-slate-800";
