@@ -15,6 +15,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import JoinEventCard from "@/components/eventsCard/JoinEventCard";
+import { getTokenFromServer } from "@/lib/getTokenFromServer";
 
 interface EventDetailsPageProps {
     params: Promise<{
@@ -34,10 +35,16 @@ interface EventDetails {
 }
 
 async function getEventDetails(id: string): Promise<EventDetails | null> {
+
+    const token = await getTokenFromServer()
+    // console.log("JWT Token:", token);
     try {
         const res = await fetch(`http://localhost:8000/events/${id}`, {
-            cache: "no-store",
-        });
+            headers: {
+                authorization: `Bearer ${token}`
+            }
+        }
+        );
 
         if (!res.ok) return null;
 

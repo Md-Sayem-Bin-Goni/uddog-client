@@ -2,6 +2,7 @@
 import UpcommingEventsCard, {
     type UpcomingEvent,
 } from "@/components/eventsCard/UpcommingEventsCard";
+import { getTokenFromServer } from "@/lib/getTokenFromServer";
 
 import {
     CalendarDays,
@@ -17,8 +18,13 @@ const UpcomingEventsPage = async () => {
 
     let events: UpcomingEvent[] = [];
 
+    
+
+
     try {
-        const res = await fetch("http://localhost:8000/events", {
+        const res = await fetch("http://localhost:8000/all-events", {
+
+         
             cache: "no-store",
         });
 
@@ -36,12 +42,15 @@ const UpcomingEventsPage = async () => {
             day: "2-digit",
         }).format(new Date());
 
-        events = (data.events as UpcomingEvent[])
+        const allEvents: UpcomingEvent[] = Array.isArray(data.events)
+            ? data.events
+            : [];
+
+        events = allEvents
             .filter((event) => event.eventDate >= today)
             .sort((a, b) =>
                 a.eventDate.localeCompare(b.eventDate)
             );
-
     } catch (error) {
         console.error("Failed to load upcoming events:", error);
         throw error;

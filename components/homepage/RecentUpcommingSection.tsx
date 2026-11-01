@@ -25,6 +25,8 @@ const RecentUpcommingSection = () => {
     const [events, setEvents] = useState<EventItem[]>([]);
     const [loading, setLoading] = useState(true);
 
+       
+    
     useEffect(() => {
         fetch("http://localhost:8000/upcoming-events")
             .then((res) => res.json())

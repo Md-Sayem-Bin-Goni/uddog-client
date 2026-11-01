@@ -19,6 +19,7 @@ import { authClient } from "@/lib/auth-client";
 import { redirect, useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
 import { Toast } from "@base-ui/react";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 const eventTypes = [
     "Cleanup",
@@ -91,11 +92,12 @@ const CreateEventPage = () => {
 
         try {
             setIsSubmitting(true);
-
+const token = await getTokenFromClient()
             const response = await fetch("http://localhost:8000/add-events", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     ...formData,
