@@ -21,13 +21,19 @@ const UpcommingEventsCard = ({ event }: { event: UpcomingEvent }) => {
             {/* Image Section */}
             <div className="relative h-56 w-full overflow-hidden">
 
-                <Image
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    src={event.thumbnail}
-                    alt={event.title}
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                />
+                {event.thumbnail ? (
+                    <Image
+                        fill
+                        src={event.thumbnail}
+                        alt={event.title || "Event thumbnail"}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
+                        No Image Available
+                    </div>
+                )}
 
                 {/* Image Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />

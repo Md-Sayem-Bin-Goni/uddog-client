@@ -3,6 +3,8 @@
 
 import React, { useState } from "react";
 import { CalendarDays, MapPin, ImagePlus, PlusCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
 
 const eventTypes = [
     "Cleanup",
@@ -46,8 +48,14 @@ const CreateEventPage = () => {
         });
     };
 
-    const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { data: session } = authClient.useSession()
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (isSubmitting) return;
+
         setError("");
 
         if (!formData.eventDate || formData.eventDate <= minDate) {
@@ -55,24 +63,43 @@ const CreateEventPage = () => {
             return;
         }
 
-        console.log("Event Data:", formData);
+        try {
+            setIsSubmitting(true);
 
-        // API integration will be added here
-        const response = await fetch(
-            "http://localhost:5000/add-events",
-            {
+            const response = await fetch("http://localhost:8000/add-events", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({
+                    ...formData,
+                    createdBy: session?.user.email,
+                })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || "Failed to add event");
             }
-        );
 
-        const result = await response.json();
+            console.log(result);
 
-        console.log(result);
+            // Reset form after successful submission
+            setFormData({
+                title: "",
+                description: "",
+                eventType: "",
+                thumbnail: "",
+                location: "",
+                eventDate: "",
+            });
 
+        } catch (error) {
+            setError(error instanceof Error ? error.message : "Something went wrong");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -218,12 +245,9 @@ const CreateEventPage = () => {
                         )}
 
                         {/* Submit Button */}
-                        <button
-                            type="submit"
-                            className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 px-6 py-3.5 font-semibold text-white shadow-md transition hover:from-blue-700 hover:to-cyan-600 active:scale-[0.99]"
-                        >
-                            Create Event
-                        </button>
+                        <Button type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? "Submitting..." : "Add Event"}
+                        </Button>
 
                     </form>
                 </div>

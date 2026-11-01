@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "next-themes";
@@ -27,6 +27,9 @@ import {
     AvatarFallback,
     AvatarImage,
 } from "@/components/ui/avatar";
+
+// No-op subscribe: the "mounted" flag never changes after first client render.
+const emptySubscribe = () => () => { };
 
 import {
     Popover,
@@ -59,16 +62,20 @@ const menuItems = [
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const [mounted, setMounted] = useState(false);
+
+    // Hydration-safe "mounted" flag: server snapshot false, client snapshot
+    // true — avoids the setState-in-effect lint error and theme icon mismatch.
+    const mounted = useSyncExternalStore(
+        emptySubscribe,
+        () => true,
+        () => false
+    );
+    const [mmounted, setMounted] = useState(false);
 
     const { theme, setTheme } = useTheme();
 
     const { data: session, isPending } = authClient.useSession();
     const user = session?.user;
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
 
     // Theme Toggle
     const toggleTheme = () => {

@@ -2,17 +2,26 @@
 import UpcommingEventsCard, { type UpcomingEvent } from '@/components/eventsCard/UpcommingEventsCard';
 import React from 'react';
 import { CalendarDays, Sparkles } from 'lucide-react';
+import { redirect } from 'next/navigation';
 
 const UpcomingEventsPage = async () => {
 
-    const res = await fetch('http://localhost:5000/events');
+    const res = await fetch('http://localhost:8000/events');
 
     if (!res.ok) {
         throw new Error("Failed to fetch events");
     }
 
     const data = await res.json();
-    const events: UpcomingEvent[] = data.events;
+
+    const today = new Date().toISOString().split("T")[0];
+
+    const events: UpcomingEvent[] = data.events
+        .filter((event: UpcomingEvent) => event.eventDate >= today)
+        .sort((a: UpcomingEvent, b: UpcomingEvent) =>
+            a.eventDate.localeCompare(b.eventDate)
+        );
+
 
     return (
         <main className="min-h-screen bg-slate-50 px-4 py-16 dark:bg-slate-950 sm:px-6 lg:px-8">
