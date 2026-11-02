@@ -17,6 +17,7 @@ import {
 
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 interface EventItem {
     _id: string;
@@ -40,20 +41,24 @@ const JoinEventCard: React.FC<JoinEventCardProps> = ({ event }) => {
     const [message, setMessage] = useState("");
     const [isSuccess, setIsSuccess] = useState(false);
 
+    
     const handleJoinEvent = async () => {
         if (!session?.user) {
             router.push("/sign-in");
             return;
         }
-
+        
         setIsLoading(true);
         setMessage("");
-
+        
+        const token =await getTokenFromClient()
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/join-event`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
             },
+
             body: JSON.stringify({
                 eventId: event._id,
                 eventTitle: event.title,

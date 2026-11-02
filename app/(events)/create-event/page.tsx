@@ -91,8 +91,10 @@ const CreateEventPage = () => {
         }
 
         try {
+            
             setIsSubmitting(true);
-const token = await getTokenFromClient()
+            const token = await getTokenFromClient()
+
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/add-events`, {
                 method: "POST",
                 headers: {

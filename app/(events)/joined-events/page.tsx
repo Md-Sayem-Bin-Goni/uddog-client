@@ -18,6 +18,8 @@ import {
     LogIn,
     PartyPopper,
 } from "lucide-react";
+import { getTokenFromServer } from "@/lib/getTokenFromServer";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 interface JoinedEvent {
     _id: string;
@@ -53,14 +55,22 @@ const MyJoinedEvents = () => {
 
         const controller = new AbortController();
 
+        
         const fetchJoinedEvents = async () => {
             try {
                 setIsLoading(true);
                 setError("");
-
+                
+                const token = await getTokenFromClient()
+                // console.log(token);
                 const res = await fetch(
                     `${process.env.NEXT_PUBLIC_API_URL}/my-joined-events/${encodeURIComponent(email)}`,
-                    { signal: controller.signal }
+                    {
+                        headers: {
+                            authorization: `Bearer ${token}`
+                        }
+                    }
+
                 );
 
                 if (!res.ok) {

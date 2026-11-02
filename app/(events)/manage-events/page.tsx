@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 
 import EventManageCard from "@/components/eventsCard/EventManageCard";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 interface EventItem {
     _id: string;
@@ -52,16 +53,24 @@ const ManageEventsPage = () => {
 
         const controller = new AbortController();
 
+
+
         const fetchEvents = async () => {
             setIsLoading(true);
             setError("");
 
             try {
+
+                const token = await getTokenFromClient()
+                // console.log(token);
                 const res = await fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}/my-created-events/${encodeURIComponent(
-                        session.user.email
-                    )}`,
-                    { signal: controller.signal }
+                    `${process.env.NEXT_PUBLIC_API_URL}/my-created-events/${session.user.email}`,
+                    {
+
+                        headers: {
+                            authorization: `Bearer ${token}`
+                        }
+                    }
                 );
 
                 if (!res.ok) {
