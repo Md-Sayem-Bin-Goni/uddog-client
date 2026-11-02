@@ -26,6 +26,7 @@ import {
 
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 interface EventItem {
     _id: string;
@@ -86,12 +87,16 @@ const EditDialog = ({ event }: { event: EventItem }) => {
         setIsSubmitting(true);
 
         try {
+            const token = await getTokenFromClient()
             const res = await fetch(
                 `${process.env.NEXT_PUBLIC_API_URL}/update-event/${event._id}`,
                 {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
+
+                        authorization: `Bearer ${token}`
+
                     },
                     body: JSON.stringify(formData),
                 }
@@ -149,7 +154,7 @@ const EditDialog = ({ event }: { event: EventItem }) => {
                     <Button
                         variant="outline"
                         size="sm"
-className="h-11 w-full gap-2 rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 font-semibold text-blue-700 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-500 hover:from-blue-600 hover:to-indigo-600 hover:text-white hover:shadow-lg hover:shadow-blue-500/20 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-400 dark:hover:from-blue-600 dark:hover:to-indigo-600 dark:hover:text-white"                    />
+                        className="h-11 w-full gap-2 rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 font-semibold text-blue-700 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-500 hover:from-blue-600 hover:to-indigo-600 hover:text-white hover:shadow-lg hover:shadow-blue-500/20 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-400 dark:hover:from-blue-600 dark:hover:to-indigo-600 dark:hover:text-white" />
                 }
             >
                 <Edit size={16} />

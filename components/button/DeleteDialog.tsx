@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import { Button } from "@/components/ui/button";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 import {
     Trash2,
     AlertTriangle,
@@ -37,11 +38,15 @@ const DeleteDialog = ({ eventId }: { eventId: string }) => {
         setError("");
 
         try {
+            const token = await getTokenFromClient()
             const res = await fetch(
                 `${process.env.NEXT_PUBLIC_API_URL}/delete-event/${eventId}`,
                 {
-                    method: "DELETE",
-                }
+                    method: "DELETE", 
+                    headers: {
+                        authorization: `Bearer ${token}`
+                    }
+                },
             );
 
             const data = await res.json();
