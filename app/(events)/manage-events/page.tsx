@@ -58,7 +58,7 @@ const ManageEventsPage = () => {
 
             try {
                 const res = await fetch(
-                    `http://localhost:8000/my-created-events/${encodeURIComponent(
+                    `${process.env.NEXT_PUBLIC_API_URL}/my-created-events/${encodeURIComponent(
                         session.user.email
                     )}`,
                     { signal: controller.signal }

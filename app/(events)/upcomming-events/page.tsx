@@ -22,9 +22,7 @@ const UpcomingEventsPage = async () => {
 
 
     try {
-        const res = await fetch("http://localhost:8000/all-events", {
-
-         
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/all-events`, {
             cache: "no-store",
         });
 

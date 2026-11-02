@@ -38,7 +38,7 @@ const DeleteDialog = ({ eventId }: { eventId: string }) => {
 
         try {
             const res = await fetch(
-                `http://localhost:8000/delete-event/${eventId}`,
+                `${process.env.NEXT_PUBLIC_API_URL}/delete-event/${eventId}`,
                 {
                     method: "DELETE",
                 }

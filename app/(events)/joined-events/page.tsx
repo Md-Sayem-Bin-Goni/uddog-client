@@ -59,7 +59,7 @@ const MyJoinedEvents = () => {
                 setError("");
 
                 const res = await fetch(
-                    `http://localhost:8000/my-joined-events/${encodeURIComponent(email)}`,
+                    `${process.env.NEXT_PUBLIC_API_URL}/my-joined-events/${encodeURIComponent(email)}`,
                     { signal: controller.signal }
                 );
 

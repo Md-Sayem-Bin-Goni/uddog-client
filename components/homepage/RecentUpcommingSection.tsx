@@ -28,7 +28,7 @@ const RecentUpcommingSection = () => {
        
     
     useEffect(() => {
-        fetch("http://localhost:8000/upcoming-events")
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/upcoming-events`)
             .then((res) => res.json())
             .then((data) => setEvents(data))
             .finally(() => setLoading(false));

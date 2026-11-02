@@ -39,7 +39,7 @@ async function getEventDetails(id: string): Promise<EventDetails | null> {
     const token = await getTokenFromServer()
     // console.log("JWT Token:", token);
     try {
-        const res = await fetch(`http://localhost:8000/events/${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${id}`, {
             headers: {
                 authorization: `Bearer ${token}`
             }
