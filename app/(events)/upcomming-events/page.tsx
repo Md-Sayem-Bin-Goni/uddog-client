@@ -1,18 +1,19 @@
 
-import UpcommingEventsCard, {
+import UpcomingEventsBrowser, {
     type UpcomingEvent,
-} from "@/components/eventsCard/UpcommingEventsCard";
-import { getTokenFromServer } from "@/lib/getTokenFromServer";
+} from "@/components/eventsCard/UpcomingEventsBrowser";
 
 import {
     CalendarDays,
     Sparkles,
     ArrowRight,
     Compass,
-    PartyPopper,
 } from "lucide-react";
 
 import Link from "next/link";
+
+// Always fetch live data from the backend at request time
+export const dynamic = "force-dynamic";
 
 const UpcomingEventsPage = async () => {
 
@@ -136,56 +137,8 @@ const UpcomingEventsPage = async () => {
 
                 </section>
 
-                {/* Events Grid */}
-                {events.length > 0 ? (
-
-                    <section className="grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3">
-
-                        {events.map((event) => (
-                            <div
-                                key={event._id}
-                                className="group transition-all duration-300 hover:-translate-y-1"
-                            >
-                                <UpcommingEventsCard event={event} />
-                            </div>
-                        ))}
-
-                    </section>
-
-                ) : (
-
-                    /* Empty State */
-                    <section className="relative overflow-hidden rounded-[2rem] border border-dashed border-blue-200 bg-white px-6 py-20 text-center dark:border-blue-500/20 dark:bg-slate-900">
-
-                        <div className="pointer-events-none absolute -right-20 -top-20 h-60 w-60 rounded-full bg-blue-100/70 blur-3xl dark:bg-blue-500/5" />
-
-                        <div className="pointer-events-none absolute -bottom-20 -left-20 h-60 w-60 rounded-full bg-indigo-100/70 blur-3xl dark:bg-indigo-500/5" />
-
-                        <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl shadow-blue-500/20">
-                            <PartyPopper size={34} />
-                        </div>
-
-                        <h2 className="relative mt-7 text-2xl font-extrabold text-slate-900 dark:text-white">
-                            No Upcoming Events Yet
-                        </h2>
-
-                        <p className="relative mx-auto mt-3 max-w-md text-sm leading-7 text-slate-500 dark:text-slate-400">
-                            There are no upcoming events at the moment.
-                            New opportunities are coming soon.
-                            Stay connected with Uddog!
-                        </p>
-
-                        <Link
-                            href="/create-event"
-                            className="relative mt-7 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-                        >
-                            Create an Event
-                            <ArrowRight size={17} />
-                        </Link>
-
-                    </section>
-
-                )}
+                {/* Search, Category Filters & Events Grid */}
+                <UpcomingEventsBrowser events={events} />
 
                 {/* Bottom CTA */}
                 {events.length > 0 && (

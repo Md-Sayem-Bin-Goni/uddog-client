@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -60,34 +60,42 @@ const menuItems = [
     },
 ];
 
+// Hydration-safe "mounted" flag (no setState inside an effect)
+const emptySubscribe = () => () => {};
+const useMounted = () =>
+    useSyncExternalStore(emptySubscribe, () => true, () => false);
+
+const ThemeButton = () => {
+    const { theme, setTheme } = useTheme();
+    const mounted = useMounted();
+
+    return (
+        <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            disabled={!mounted}
+            aria-label="Toggle theme"
+            className="rounded-xl border border-blue-100 bg-white/70 text-slate-700 shadow-sm transition-all hover:bg-blue-100 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+        >
+            {mounted && theme === "dark" ? (
+                <Sun size={19} className="text-amber-400" />
+            ) : (
+                <Moon size={19} className="text-blue-600 dark:text-blue-400" />
+            )}
+        </Button>
+    );
+};
+
 const Navbar = () => {
     const pathname = usePathname();
 
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
-    const [mounted, setMounted] = useState(false);
-
-    const { theme, setTheme } = useTheme();
 
     const { data: session, isPending } = authClient.useSession();
 
     const user = session?.user;
-
-    // Mounted check for theme
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    // Close menus when route changes
-    useEffect(() => {
-        setIsProfileOpen(false);
-        setIsOpen(false);
-    }, [pathname]);
-
-    // Theme toggle
-    const toggleTheme = () => {
-        setTheme(theme === "dark" ? "light" : "dark");
-    };
 
     // Logout
     const handleLogout = async () => {
@@ -111,24 +119,6 @@ const Navbar = () => {
 
     // User initial
     const userInitial = user?.name?.charAt(0)?.toUpperCase() || "U";
-
-    // Theme button
-    const ThemeButton = () => (
-        <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleTheme}
-            disabled={!mounted}
-            aria-label="Toggle theme"
-            className="rounded-xl border border-blue-100 bg-white/70 text-slate-700 shadow-sm transition-all hover:bg-blue-100 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-        >
-            {mounted && theme === "dark" ? (
-                <Sun size={19} className="text-amber-400" />
-            ) : (
-                <Moon size={19} className="text-blue-600 dark:text-blue-400" />
-            )}
-        </Button>
-    );
 
     return (
         <header className="sticky top-0 z-50 w-full border-b border-blue-100/80 bg-white/85 shadow-sm shadow-blue-100/20 backdrop-blur-2xl dark:border-slate-800 dark:bg-slate-950/85 dark:shadow-none">
@@ -347,7 +337,7 @@ const Navbar = () => {
             <div
                 className={`overflow-hidden border-t border-blue-100 bg-white transition-all duration-300 dark:border-slate-800 dark:bg-slate-950 lg:hidden ${
                     isOpen
-                        ? "max-h-[650px] opacity-100"
+                        ? "max-h-[80vh] opacity-100"
                         : "max-h-0 border-t-0 opacity-0"
                 }`}
             >

@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
@@ -48,7 +49,13 @@ const eventTypes = [
     "Other",
 ];
 
-const EditDialog = ({ event }: { event: EventItem }) => {
+const EditDialog = ({
+    event,
+    onSuccess,
+}: {
+    event: EventItem;
+    onSuccess?: () => void;
+}) => {
     const router = useRouter();
 
     const [open, setOpen] = React.useState(false);
@@ -87,7 +94,14 @@ const EditDialog = ({ event }: { event: EventItem }) => {
         setIsSubmitting(true);
 
         try {
-            const token = await getTokenFromClient()
+            const token = await getTokenFromClient();
+
+            if (!token) {
+                throw new Error(
+                    "Your session has expired. Please log in again."
+                );
+            }
+
             const res = await fetch(
                 `${process.env.NEXT_PUBLIC_API_URL}/update-event/${event._id}`,
                 {
@@ -109,18 +123,22 @@ const EditDialog = ({ event }: { event: EventItem }) => {
             }
 
             setSuccess("Event updated successfully!");
+            toast.success("Event updated successfully!");
 
             setTimeout(() => {
                 setOpen(false);
+                onSuccess?.();
                 router.refresh();
             }, 700);
 
         } catch (err) {
-            setError(
+            const errorMessage =
                 err instanceof Error
                     ? err.message
-                    : "Something went wrong. Please try again."
-            );
+                    : "Something went wrong. Please try again.";
+
+            setError(errorMessage);
+            toast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }

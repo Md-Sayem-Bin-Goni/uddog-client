@@ -16,9 +16,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
-import { redirect, useRouter } from "next/navigation";
-import { toast } from "@/components/ui/toast";
-import { Toast } from "@base-ui/react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 const eventTypes = [
@@ -82,11 +81,13 @@ const CreateEventPage = () => {
 
         if (!session?.user?.email) {
             setError("Please sign in before creating an event.");
+            toast.error("Please sign in before creating an event.");
             return;
         }
 
         if (!formData.eventDate || formData.eventDate <= minDate) {
             setError("Please select a future event date.");
+            toast.error("Please select a future event date.");
             return;
         }
 
@@ -94,6 +95,10 @@ const CreateEventPage = () => {
             
             setIsSubmitting(true);
             const token = await getTokenFromClient()
+
+            if (!token) {
+                throw new Error("Your session has expired. Please log in again.");
+            }
 
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/add-events`, {
                 method: "POST",
@@ -124,17 +129,19 @@ const CreateEventPage = () => {
                 eventDate: "",
             });
 
-            // Toast.success("Event created successfully!");
+            toast.success("Event created successfully!");
 
             router.push("/manage-events");
             router.refresh();
 
-        } catch (error) {
-            setError(
-                error instanceof Error
-                    ? error.message
-                    : "Something went wrong. Please try again."
-            );
+        } catch (err) {
+            const errorMessage =
+                err instanceof Error
+                    ? err.message
+                    : "Something went wrong. Please try again.";
+
+            setError(errorMessage);
+            toast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }
@@ -345,7 +352,7 @@ const CreateEventPage = () => {
                         <Button
                             type="submit"
                             disabled={isSubmitting}
-                            className="h-13 w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-base font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
+                            className="h-12 w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-base font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             {isSubmitting ? (
                                 <>
@@ -361,7 +368,7 @@ const CreateEventPage = () => {
                         </Button>
 
                         <p className="text-center text-xs text-slate-400">
-                            By creating this event, you're helping build a stronger community.
+                            By creating this event, you&apos;re helping build a stronger community.
                         </p>
 
                     </form>

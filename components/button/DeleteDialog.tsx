@@ -24,8 +24,15 @@ import {
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
-const DeleteDialog = ({ eventId }: { eventId: string }) => {
+const DeleteDialog = ({
+    eventId,
+    onSuccess,
+}: {
+    eventId: string;
+    onSuccess?: () => void;
+}) => {
     const router = useRouter();
 
     const [open, setOpen] = useState(false);
@@ -38,7 +45,14 @@ const DeleteDialog = ({ eventId }: { eventId: string }) => {
         setError("");
 
         try {
-            const token = await getTokenFromClient()
+            const token = await getTokenFromClient();
+
+            if (!token) {
+                throw new Error(
+                    "Your session has expired. Please log in again."
+                );
+            }
+
             const res = await fetch(
                 `${process.env.NEXT_PUBLIC_API_URL}/delete-event/${eventId}`,
                 {
@@ -56,19 +70,23 @@ const DeleteDialog = ({ eventId }: { eventId: string }) => {
             }
 
             setSuccess(true);
+            toast.success("Event deleted successfully!");
 
             setTimeout(() => {
                 setOpen(false);
                 setSuccess(false);
+                onSuccess?.();
                 router.refresh();
             }, 700);
 
         } catch (err) {
-            setError(
+            const errorMessage =
                 err instanceof Error
                     ? err.message
-                    : "Something went wrong. Please try again."
-            );
+                    : "Something went wrong. Please try again.";
+
+            setError(errorMessage);
+            toast.error(errorMessage);
         } finally {
             setIsLoading(false);
         }

@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
+import { formatEventDate } from "@/lib/formatEventDate";
+
 import {
     CalendarDays,
     MapPin,
@@ -20,25 +22,13 @@ export interface UpcomingEvent {
     thumbnail: string;
 }
 
-const formatEventDate = (date: string) => {
-    const [year, month, day] = date.split("-").map(Number);
-
-    if (!year || !month || !day) return date;
-
-    return new Date(year, month - 1, day).toLocaleDateString("en-BD", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-    });
-};
-
 const UpcommingEventsCard = ({
     event,
 }: {
     event: UpcomingEvent;
 }) => {
     return (
-        <article className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm transition-all duration-500 hover:-translate-y-2 hover:border-blue-200 hover:shadow-2xl hover:shadow-blue-500/10 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-500/30 dark:hover:shadow-blue-950/30">
+        <article className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm transition-all duration-500 hover:-translate-y-2 hover:border-blue-200 hover:shadow-2xl hover:shadow-blue-500/10 dark:border-slate-700 dark:bg-[#172033] dark:hover:border-blue-500/40 dark:hover:shadow-blue-950/30">
 
             {/* Image Section */}
             <div className="relative h-56 w-full overflow-hidden bg-slate-100 dark:bg-slate-800">

@@ -59,7 +59,7 @@ const RecentUpcommingSection = () => {
                     <div className="max-w-2xl">
                         <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white/80 px-4 py-2 text-sm font-bold text-blue-700 shadow-sm dark:border-blue-400/20 dark:bg-blue-500/10 dark:text-blue-400">
                             <Sparkles size={16} />
-                            WHAT'S HAPPENING NEXT
+                            WHAT&apos;S HAPPENING NEXT
                         </div>
 
                         <h2 className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-5xl lg:text-6xl">

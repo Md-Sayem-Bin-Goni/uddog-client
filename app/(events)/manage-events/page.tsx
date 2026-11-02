@@ -41,15 +41,17 @@ const ManageEventsPage = () => {
     const [search, setSearch] = useState("");
     const [error, setError] = useState("");
 
+    const email = session?.user?.email;
+
+    // Show nothing (instead of stale data) when logged out
+    const visibleEvents = useMemo(
+        () => (email ? events : []),
+        [email, events]
+    );
+
     // Fetch Created Events
     useEffect(() => {
-        if (isPending) return;
-
-        if (!session?.user?.email) {
-            setEvents([]);
-            setIsLoading(false);
-            return;
-        }
+        if (!email) return;
 
         const controller = new AbortController();
 
@@ -64,7 +66,7 @@ const ManageEventsPage = () => {
                 const token = await getTokenFromClient()
                 // console.log(token);
                 const res = await fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}/my-created-events/${session.user.email}`,
+                    `${process.env.NEXT_PUBLIC_API_URL}/my-created-events/${email}`,
                     {
 
                         headers: {
@@ -100,15 +102,15 @@ const ManageEventsPage = () => {
 
         return () => controller.abort();
 
-    }, [session?.user?.email, isPending]);
+    }, [email]);
 
     // Search Events
     const filteredEvents = useMemo(() => {
         const searchValue = search.toLowerCase().trim();
 
-        if (!searchValue) return events;
+        if (!searchValue) return visibleEvents;
 
-        return events.filter((event) =>
+        return visibleEvents.filter((event) =>
             [
                 event.title,
                 event.description,
@@ -118,7 +120,7 @@ const ManageEventsPage = () => {
                 value?.toLowerCase().includes(searchValue)
             )
         );
-    }, [events, search]);
+    }, [visibleEvents, search]);
 
     const isPageLoading = isPending || isLoading;
 
@@ -193,7 +195,7 @@ const ManageEventsPage = () => {
                 {/* Dashboard Stats */}
                 <section className="mb-8 grid gap-4 sm:grid-cols-2">
 
-                    <div className="flex items-center gap-4 rounded-2xl border border-blue-100 bg-white p-5 shadow-sm dark:border-blue-500/10 dark:bg-slate-900">
+                    <div className="flex items-center gap-4 rounded-2xl border border-blue-100 bg-white p-5 shadow-sm dark:border-blue-500/10 dark:bg-[#172033]">
                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/20">
                             <CalendarDays size={23} />
                         </div>
@@ -204,12 +206,12 @@ const ManageEventsPage = () => {
                             </p>
 
                             <h3 className="mt-1 text-2xl font-extrabold text-slate-900 dark:text-white">
-                                {events.length}
+                                {visibleEvents.length}
                             </h3>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4 rounded-2xl border border-indigo-100 bg-white p-5 shadow-sm dark:border-indigo-500/10 dark:bg-slate-900">
+                    <div className="flex items-center gap-4 rounded-2xl border border-indigo-100 bg-white p-5 shadow-sm dark:border-indigo-500/10 dark:bg-[#172033]">
                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-500/20">
                             <SlidersHorizontal size={22} />
                         </div>
@@ -228,7 +230,7 @@ const ManageEventsPage = () => {
                 </section>
 
                 {/* Search Section */}
-                <section className="mb-8 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
+                <section className="mb-8 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-[#172033] sm:p-5">
 
                     <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
 
@@ -283,7 +285,7 @@ const ManageEventsPage = () => {
                             {[1, 2, 3, 4, 5, 6].map((item) => (
                                 <div
                                     key={item}
-                                    className="animate-pulse overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
+                                    className="animate-pulse overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-[#172033]"
                                 >
                                     <div className="h-52 bg-slate-200 dark:bg-slate-800" />
 
@@ -300,7 +302,7 @@ const ManageEventsPage = () => {
                     ) : error ? (
 
                         /* Error State */
-                        <div className="rounded-3xl border border-red-200 bg-white px-6 py-16 text-center dark:border-red-900/50 dark:bg-slate-900">
+                        <div className="rounded-3xl border border-red-200 bg-white px-6 py-16 text-center dark:border-red-900/50 dark:bg-[#172033]">
 
                             <AlertCircle
                                 size={42}
@@ -328,7 +330,7 @@ const ManageEventsPage = () => {
                     ) : filteredEvents.length === 0 ? (
 
                         /* Empty State */
-                        <div className="relative overflow-hidden rounded-3xl border border-dashed border-blue-200 bg-white px-6 py-20 text-center dark:border-blue-500/20 dark:bg-slate-900">
+                        <div className="relative overflow-hidden rounded-3xl border border-dashed border-blue-200 bg-white px-6 py-20 text-center dark:border-blue-500/20 dark:bg-[#172033]">
 
                             <div className="absolute -right-20 -top-20 h-52 w-52 rounded-full bg-blue-100/60 blur-3xl dark:bg-blue-500/5" />
 

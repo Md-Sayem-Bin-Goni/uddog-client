@@ -17,9 +17,10 @@ import {
     RefreshCw,
     LogIn,
     PartyPopper,
+    Eye,
 } from "lucide-react";
-import { getTokenFromServer } from "@/lib/getTokenFromServer";
 import { getTokenFromClient } from "@/lib/getTokenFromClient";
+import { formatEventDate } from "@/lib/formatEventDate";
 
 interface JoinedEvent {
     _id: string;
@@ -42,25 +43,22 @@ const MyJoinedEvents = () => {
     const [error, setError] = useState("");
     const [reload, setReload] = useState(0);
 
+    const email = session?.user?.email;
+
+    // Show nothing (instead of stale data) when logged out
+    const visibleEvents = email ? events : [];
+
     useEffect(() => {
-        if (isPending) return;
-
-        const email = session?.user?.email;
-
-        if (!email) {
-            setEvents([]);
-            setIsLoading(false);
-            return;
-        }
+        if (!email) return;
 
         const controller = new AbortController();
 
-        
+
         const fetchJoinedEvents = async () => {
             try {
                 setIsLoading(true);
                 setError("");
-                
+
                 const token = await getTokenFromClient()
                 // console.log(token);
                 const res = await fetch(
@@ -109,19 +107,7 @@ const MyJoinedEvents = () => {
         fetchJoinedEvents();
 
         return () => controller.abort();
-    }, [session?.user?.email, isPending, reload]);
-
-    const formatDate = (date: string) => {
-        const [year, month, day] = date.split("-").map(Number);
-
-        if (!year || !month || !day) return date;
-
-        return new Date(year, month - 1, day).toLocaleDateString("en-BD", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-        });
-    };
+    }, [email, reload]);
 
     // Session Loading
     if (isPending || isLoading) {
@@ -159,7 +145,7 @@ const MyJoinedEvents = () => {
                     </p>
 
                     <Link
-                        href="/sign-in"
+                        href="/login"
                         className="mt-7 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition hover:-translate-y-0.5 hover:shadow-xl"
                     >
                         Login Now
@@ -209,7 +195,7 @@ const MyJoinedEvents = () => {
 
                         <div>
                             <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
-                                {events.length}
+                                {visibleEvents.length}
                             </p>
 
                             <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
@@ -242,7 +228,7 @@ const MyJoinedEvents = () => {
                             Try Again
                         </button>
                     </div>
-                ) : events.length === 0 ? (
+                ) : visibleEvents.length === 0 ? (
 
                     /* Empty State */
                     <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-blue-200 bg-white px-6 py-20 text-center dark:border-slate-700 dark:bg-[#172033]">
@@ -256,12 +242,12 @@ const MyJoinedEvents = () => {
                         </h2>
 
                         <p className="mt-3 max-w-sm text-sm leading-7 text-slate-500 dark:text-slate-400">
-                            You haven't registered for any events yet.
+                            You haven&apos;t registered for any events yet.
                             Explore upcoming events and find something exciting!
                         </p>
 
                         <Link
-                            href="/upcoming-events"
+                            href="/upcomming-events"
                             className="mt-7 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition hover:-translate-y-0.5 hover:shadow-xl"
                         >
                             <Ticket size={18} />
@@ -275,7 +261,7 @@ const MyJoinedEvents = () => {
                     /* Event Cards */
                     <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
 
-                        {events.map((event) => (
+                        {visibleEvents.map((event) => (
                             <article
                                 key={event.eventId}
                                 className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm transition-all duration-500 hover:-translate-y-2 hover:border-blue-200 hover:shadow-2xl hover:shadow-blue-500/10 dark:border-slate-800 dark:bg-[#172033] dark:hover:border-blue-500/30 dark:hover:shadow-blue-950/30"
@@ -311,7 +297,7 @@ const MyJoinedEvents = () => {
                                     <div className="absolute bottom-4 left-4 flex items-center gap-2.5 rounded-xl border border-white/20 bg-slate-950/40 px-3.5 py-2.5 text-white backdrop-blur-md">
                                         <CalendarDays size={17} className="text-blue-300" />
                                         <span className="text-sm font-semibold">
-                                            {formatDate(event.eventDate)}
+                                            {formatEventDate(event.eventDate)}
                                         </span>
                                     </div>
                                 </div>
@@ -364,9 +350,10 @@ const MyJoinedEvents = () => {
                                         <Link
                                             href={`/events/${event.eventId}`}
                                             aria-label={`View ${event.eventTitle}`}
-                                            className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 transition-all duration-300 hover:scale-110 hover:shadow-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30"
+                                            className="flex h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 text-sm font-bold text-white shadow-md shadow-blue-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30"
                                         >
-                                            <ArrowUpRight size={20} />
+                                            <Eye size={17} />
+                                            View
                                         </Link>
                                     </div>
                                 </div>

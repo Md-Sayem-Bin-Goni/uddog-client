@@ -6,16 +6,14 @@ import {
     MapPin,
     Users,
     ArrowLeft,
-    Clock,
     Sparkles,
     ShieldCheck,
     ArrowUpRight,
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { format } from "date-fns";
 import JoinEventCard from "@/components/eventsCard/JoinEventCard";
-import { getTokenFromServer } from "@/lib/getTokenFromServer";
+import { formatEventDate } from "@/lib/formatEventDate";
 
 interface EventDetailsPageProps {
     params: Promise<{
@@ -36,15 +34,10 @@ interface EventDetails {
 
 async function getEventDetails(id: string): Promise<EventDetails | null> {
 
-    const token = await getTokenFromServer()
+    // const token = await getTokenFromServer()
     // console.log("JWT Token:", token);
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${id}`, {
-            headers: {
-                authorization: `Bearer ${token}`
-            }
-        }
-        );
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/all-events/${id}` );
 
         if (!res.ok) return null;
 
@@ -54,14 +47,6 @@ async function getEventDetails(id: string): Promise<EventDetails | null> {
         console.error("Failed to fetch event details:", error);
         return null;
     }
-}
-
-function formatEventDate(eventDate: string) {
-    const [year, month, day] = eventDate.split("-").map(Number);
-
-    if (!year || !month || !day) return eventDate;
-
-    return format(new Date(year, month - 1, day), "MMMM d, yyyy");
 }
 
 export default async function EventDetailsPage({

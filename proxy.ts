@@ -23,6 +23,6 @@ export const config = {
         '/create-event/:path*',
         '/manage-events/:path*',
         '/joined-events/:path*',
-        '/events/:path*',
+        // '/events/:path*',
     ],
 }

@@ -1,8 +1,9 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
 import {
   User,
   Mail,
@@ -30,21 +31,22 @@ const ProfilePage = () => {
     image: "",
   });
 
-  // Load user information into the form
-  useEffect(() => {
-    if (user) {
-      setFormData({
-        name: user.name || "",
-        image: user.image || "",
-      });
-    }
-  }, [user]);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  // Load user information into the form when entering edit mode
+  const startEditing = () => {
+    setFormData({
+      name: user?.name || "",
+      image: user?.image || "",
+    });
+    setError("");
+    setSuccess("");
+    setIsEditing(true);
   };
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -55,6 +57,7 @@ const ProfilePage = () => {
 
     if (!formData.name.trim()) {
       setError("Name cannot be empty.");
+      toast.error("Name cannot be empty.");
       return;
     }
 
@@ -72,13 +75,16 @@ const ProfilePage = () => {
       }
 
       setSuccess("Profile updated successfully!");
+      toast.success("Profile updated successfully!");
       setIsEditing(false);
     } catch (err) {
-      setError(
+      const errorMessage =
         err instanceof Error
           ? err.message
-          : "Something went wrong. Please try again."
-      );
+          : "Something went wrong. Please try again.";
+
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsSaving(false);
     }
@@ -103,8 +109,7 @@ const ProfilePage = () => {
           <p className="mt-2 text-slate-500 dark:text-slate-400">
             Please login to view your profile.
           </p>
-          <a
-            href="/sign-in"
+          <a href="/login"
             className="mt-6 inline-block rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-indigo-600"
           >
             Sign In
@@ -173,14 +178,7 @@ const ProfilePage = () => {
               </div>
 
               {!isEditing && (
-                <button
-                  onClick={() => {
-                    setError("");
-                    setSuccess("");
-                    setIsEditing(true);
-                  }}
-                  className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-indigo-600"
-                >
+                <button onClick={startEditing} className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-indigo-600">
                   <Pencil size={17} />
                   Edit Profile
                 </button>

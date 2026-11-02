@@ -45,8 +45,8 @@ export default function NotFound() {
                     </h2>
 
                     <p className="mx-auto max-w-md text-base leading-7 text-slate-600 dark:text-slate-400">
-                        The page you're looking for doesn't exist or may
-                        have been moved. Don't worry, let's get you back
+                        The page you&apos;re looking for doesn&apos;t exist or may
+                        have been moved. Don&apos;t worry, let&apos;s get you back
                         on track!
                     </p>
                 </div>

@@ -4,12 +4,13 @@ import Image from "next/image";
 import {
     CalendarDays,
     MapPin,
-    Pencil,
-    Trash2,
     ArrowUpRight,
     Sparkles,
+    Eye,
 } from "lucide-react";
 
+import Link from "next/link";
+import { formatEventDate } from "@/lib/formatEventDate";
 import EditDialog from "@/components/button/EditDialog";
 import DeleteDialog from "@/components/button/DeleteDialog";
 
@@ -24,14 +25,7 @@ interface EventItem {
 }
 
 const EventManageCard = ({ event }: { event: EventItem }) => {
-
-    const formattedDate = new Date(
-        event.eventDate + "T00:00:00"
-    ).toLocaleDateString("en-BD", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-    });
+    const formattedDate = formatEventDate(event.eventDate);
 
     return (
         <article className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-500 hover:-translate-y-2 hover:border-blue-200 hover:shadow-2xl hover:shadow-blue-100/60 dark:border-slate-700 dark:bg-[#172033] dark:hover:border-blue-500/40 dark:hover:shadow-blue-950/30">
@@ -99,7 +93,16 @@ const EventManageCard = ({ event }: { event: EventItem }) => {
                 </div>
 
                 {/* Actions */}
-                <div className="mt-6 grid grid-cols-2 gap-3 border-t border-slate-200/70 pt-5 dark:border-slate-700/70">
+                <div className="mt-6 grid grid-cols-1 gap-3 border-t border-slate-200/70 pt-5 sm:grid-cols-3 dark:border-slate-700/70">
+
+                    <Link
+                        href={`/events/${event._id}`}
+                        className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 text-sm font-semibold text-blue-700 shadow-sm transition-all duration-300 hover:border-blue-500 hover:from-blue-600 hover:to-indigo-600 hover:text-white hover:shadow-lg hover:shadow-blue-500/20 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-400 dark:hover:from-blue-600 dark:hover:to-indigo-600 dark:hover:text-white"
+                        aria-label={`View ${event.title}`}
+                    >
+                        <Eye size={16} />
+                        View
+                    </Link>
 
                     <EditDialog event={event} />
 

@@ -3,11 +3,10 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { toast } from "sonner";
 import {
     CalendarDays,
     MapPin,
-    Users,
     ArrowRight,
     CheckCircle2,
     ShieldCheck,
@@ -16,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
+import { formatEventDate } from "@/lib/formatEventDate";
 import { Button } from "@/components/ui/button";
 import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
@@ -38,61 +38,67 @@ const JoinEventCard: React.FC<JoinEventCardProps> = ({ event }) => {
     const { data: session, isPending } = authClient.useSession();
 
     const [isLoading, setIsLoading] = useState(false);
-    const [message, setMessage] = useState("");
-    const [isSuccess, setIsSuccess] = useState(false);
 
     
     const handleJoinEvent = async () => {
         if (!session?.user) {
-            router.push("/sign-in");
+            router.push("/login");
             return;
         }
         
         setIsLoading(true);
-        setMessage("");
-        
-        const token =await getTokenFromClient()
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/join-event`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
 
-            body: JSON.stringify({
-                eventId: event._id,
-                eventTitle: event.title,
-                eventDescription: event.description,
-                eventType: event.eventType,
-                thumbnail: event.thumbnail,
-                location: event.location,
-                eventDate: event.eventDate,
-                email: session.user.email,
-                name: session.user.name,
-            }),
-        });
+        try {
+            const token = await getTokenFromClient();
 
-        const data = await res.json();
+            if (!token) {
+                toast.error("Your session has expired. Please log in again.");
+                return;
+            }
 
-        if (res.ok) {
-            setIsSuccess(true);
-            setMessage(data.message || "Successfully joined event!");
-            router.refresh();
-        } else {
-            setIsSuccess(false);
-            setMessage(data.message || "Failed to join event.");
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/join-event`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+
+                    body: JSON.stringify({
+                        eventId: event._id,
+                        eventTitle: event.title,
+                        eventDescription: event.description,
+                        eventType: event.eventType,
+                        thumbnail: event.thumbnail,
+                        location: event.location,
+                        eventDate: event.eventDate,
+                        email: session.user.email,
+                        name: session.user.name,
+                    }),
+                }
+            );
+
+            const data = await res.json();
+
+            if (res.ok) {
+                toast.success(data.message || "Successfully joined event!");
+                router.refresh();
+            } else {
+                toast.error(data.message || "Failed to join event.");
+            }
+        } catch (err) {
+            toast.error(
+                err instanceof Error
+                    ? err.message
+                    : "Something went wrong. Please try again."
+            );
+        } finally {
+            setIsLoading(false);
         }
-
-        setIsLoading(false);
     };
 
-    const formattedDate = new Date(
-        event.eventDate + "T00:00:00"
-    ).toLocaleDateString("en-BD", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-    });
+    const formattedDate = formatEventDate(event.eventDate);
 
     return (
         <div className="overflow-hidden rounded-3xl border border-blue-100 bg-white shadow-xl shadow-blue-100/50 dark:border-slate-700 dark:bg-[#172033] dark:shadow-blue-950/20">
@@ -129,7 +135,7 @@ const JoinEventCard: React.FC<JoinEventCardProps> = ({ event }) => {
                 {/* Event Information */}
                 <div>
                     <p className="mb-2 text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-                        You're joining
+                        You&apos;re joining
                     </p>
 
                     <h4 className="text-lg font-extrabold leading-snug text-slate-900 dark:text-white">
@@ -182,19 +188,6 @@ const JoinEventCard: React.FC<JoinEventCardProps> = ({ event }) => {
                         securely when you join this event.
                     </p>
                 </div>
-
-                {/* Feedback */}
-                {message && (
-                    <div
-                        className={`rounded-xl p-3 text-sm font-medium ${
-                            isSuccess
-                                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
-                                : "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
-                        }`}
-                    >
-                        {message}
-                    </div>
-                )}
 
                 {/* Join Button */}
                 <Button
