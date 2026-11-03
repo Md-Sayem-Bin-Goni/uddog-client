@@ -126,7 +126,7 @@ BETTER_AUTH_URL=http://localhost:3000
 
 If your frontend calls the Express API through an environment variable,
 set that variable to your local backend URL (for example,
-`http://localhost:5000`).
+`http://localhost:8000`).
 
 Start the frontend:
 
@@ -134,7 +134,7 @@ Start the frontend:
 npm run dev
 ```
 
-Open <http://localhost:3000> in your browser.
+Open <https://uddog-client.vercel.app/> in your browser.
 
 ## API Endpoints
 

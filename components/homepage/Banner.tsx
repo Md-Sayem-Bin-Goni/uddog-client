@@ -1,10 +1,12 @@
-import bannerimg from "@/public/images/Banner img.png";
+import bannerimg from "@/public/images/development-social-work.jpeg";
 import Image from "next/image";
 import Link from "next/link";
 import {
   CalendarDays,
   Users,
   HeartHandshake,
+  ArrowUpRight,
+  Plus,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -46,17 +48,28 @@ const Banner = () => {
           {/* Buttons */}
           <div className="mt-7 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
 
-            <Link href="/upcomming-events">
-              <Button>
-                Explore Events
-              </Button>
-            </Link>
+<div className="flex flex-col gap-4 sm:flex-row">
+  <Link href="/upcomming-events">
+    <Button
+      size="lg"
+      className="group h-12 w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-7 text-base font-semibold text-white shadow-lg shadow-blue-500/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/30 sm:w-auto"
+    >
+      Explore Events
+      <ArrowUpRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
+    </Button>
+  </Link>
 
-            <Link href="/upcomming-events">
-              <Button>
-                Explore Events
-              </Button>
-            </Link>
+  <Link href="/create-event">
+    <Button
+      size="lg"
+      variant="outline"
+      className="group h-12 w-full rounded-xl border-2 border-blue-200 bg-white px-7 text-base font-semibold text-blue-700 transition-all duration-300 hover:-translate-y-1 hover:border-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:border-blue-900 dark:bg-slate-900 dark:text-blue-300 dark:hover:bg-blue-950 sm:w-auto"
+    >
+      <Plus className="mr-2 h-5 w-5 transition-transform duration-300 group-hover:rotate-90" />
+      Publish Event
+    </Button>
+  </Link>
+</div>
 
           </div>
 

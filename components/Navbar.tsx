@@ -21,6 +21,7 @@ import {
     X,
     ChevronDown,
     Sparkles,
+    ArrowUpRight,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -61,7 +62,7 @@ const menuItems = [
 ];
 
 // Hydration-safe "mounted" flag (no setState inside an effect)
-const emptySubscribe = () => () => {};
+const emptySubscribe = () => () => { };
 const useMounted = () =>
     useSyncExternalStore(emptySubscribe, () => true, () => false);
 
@@ -70,20 +71,26 @@ const ThemeButton = () => {
     const mounted = useMounted();
 
     return (
-        <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            disabled={!mounted}
-            aria-label="Toggle theme"
-            className="rounded-xl border border-blue-100 bg-white/70 text-slate-700 shadow-sm transition-all hover:bg-blue-100 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-        >
-            {mounted && theme === "dark" ? (
-                <Sun size={19} className="text-amber-400" />
-            ) : (
-                <Moon size={19} className="text-blue-600 dark:text-blue-400" />
-            )}
-        </Button>
+<Button
+    variant="ghost"
+    size="icon"
+    onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+    disabled={!mounted}
+    aria-label="Toggle theme"
+    className="group relative h-10 w-10 overflow-hidden rounded-xl border border-blue-100 bg-gradient-to-br from-white to-blue-50 text-slate-700 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md hover:shadow-blue-500/10 dark:border-slate-700 dark:from-slate-800 dark:to-slate-900 dark:text-slate-200 dark:hover:border-blue-800 dark:hover:shadow-blue-500/10"
+>
+    {mounted && theme === "dark" ? (
+        <Sun
+            size={19}
+            className="text-amber-400 transition-transform duration-500 group-hover:rotate-45"
+        />
+    ) : (
+        <Moon
+            size={19}
+            className="text-blue-600 transition-transform duration-500 group-hover:-rotate-12 dark:text-blue-400"
+        />
+    )}
+</Button>
     );
 };
 
@@ -148,14 +155,24 @@ const Navbar = () => {
                 <div className="hidden items-center gap-2 lg:flex">
                     <Link
                         href="/upcomming-events"
-                        className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 ${
-                            pathname === "/upcomming-events"
-                                ? "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400"
-                                : "text-slate-600 hover:bg-blue-50 hover:text-blue-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-blue-400"
-                        }`}
+                        className={`group relative flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-all duration-300 ${pathname === "/upcomming-events"
+                                ? "border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 shadow-sm shadow-blue-500/5 dark:border-blue-900 dark:from-blue-500/10 dark:to-indigo-500/10 dark:text-blue-400"
+                                : "border-transparent text-slate-600 hover:border-blue-100 hover:bg-blue-50 hover:text-blue-700 dark:text-slate-300 dark:hover:border-slate-700 dark:hover:bg-slate-800 dark:hover:text-blue-400"
+                            }`}
                     >
-                        <CalendarDays size={18} />
+                        <CalendarDays
+                            size={18}
+                            className={`transition-transform duration-300 group-hover:scale-110 ${pathname === "/upcomming-events"
+                                    ? "text-blue-600 dark:text-blue-400"
+                                    : ""
+                                }`}
+                        />
+
                         Upcoming Events
+
+                        {pathname === "/upcomming-events" && (
+                            <span className="absolute bottom-0 left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-full bg-blue-600 dark:bg-blue-400" />
+                        )}
                     </Link>
                 </div>
 
@@ -168,8 +185,12 @@ const Navbar = () => {
                         <div className="h-10 w-32 animate-pulse rounded-full bg-slate-200 dark:bg-slate-800" />
                     ) : !user ? (
                         <Link href="/login">
-                            <Button className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-7 font-semibold text-white shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5 hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl">
+                            <Button
+                                size="lg"
+                                className="group h-11 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-7 font-semibold text-white shadow-lg shadow-blue-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl hover:shadow-blue-500/30"
+                            >
                                 Login
+                                <ArrowUpRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
                             </Button>
                         </Link>
                     ) : (
@@ -195,9 +216,8 @@ const Navbar = () => {
 
                                 <ChevronDown
                                     size={16}
-                                    className={`transition-transform duration-200 ${
-                                        isProfileOpen ? "rotate-180" : ""
-                                    }`}
+                                    className={`transition-transform duration-200 ${isProfileOpen ? "rotate-180" : ""
+                                        }`}
                                 />
                             </PopoverTrigger>
 
@@ -246,18 +266,16 @@ const Navbar = () => {
                                                 key={item.href}
                                                 href={item.href}
                                                 onClick={() => setIsProfileOpen(false)}
-                                                className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-200 ${
-                                                    isActive
+                                                className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-200 ${isActive
                                                         ? "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400"
                                                         : "text-slate-600 hover:bg-blue-50 hover:text-blue-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-blue-400"
-                                                }`}
+                                                    }`}
                                             >
                                                 <div
-                                                    className={`flex h-8 w-8 items-center justify-center rounded-lg ${
-                                                        isActive
+                                                    className={`flex h-8 w-8 items-center justify-center rounded-lg ${isActive
                                                             ? "bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400"
                                                             : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
-                                                    }`}
+                                                        }`}
                                                 >
                                                     <Icon size={17} />
                                                 </div>
@@ -335,11 +353,10 @@ const Navbar = () => {
 
             {/* Mobile Menu */}
             <div
-                className={`overflow-hidden border-t border-blue-100 bg-white transition-all duration-300 dark:border-slate-800 dark:bg-slate-950 lg:hidden ${
-                    isOpen
+                className={`overflow-hidden border-t border-blue-100 bg-white transition-all duration-300 dark:border-slate-800 dark:bg-slate-950 lg:hidden ${isOpen
                         ? "max-h-[80vh] opacity-100"
                         : "max-h-0 border-t-0 opacity-0"
-                }`}
+                    }`}
             >
                 <div className="mx-auto max-w-7xl space-y-2 px-4 py-4 sm:px-6">
 
@@ -347,11 +364,10 @@ const Navbar = () => {
                     <Link
                         href="/upcomming-events"
                         onClick={() => setIsOpen(false)}
-                        className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${
-                            pathname === "/upcomming-events"
+                        className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${pathname === "/upcomming-events"
                                 ? "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400"
                                 : "text-slate-600 hover:bg-blue-50 hover:text-blue-700 dark:text-slate-300 dark:hover:bg-slate-800"
-                        }`}
+                            }`}
                     >
                         <CalendarDays size={19} />
                         Upcoming Events
@@ -391,11 +407,10 @@ const Navbar = () => {
                                         key={item.href}
                                         href={item.href}
                                         onClick={() => setIsOpen(false)}
-                                        className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
-                                            isActive
+                                        className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${isActive
                                                 ? "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400"
                                                 : "text-slate-600 hover:bg-blue-50 hover:text-blue-700 dark:text-slate-300 dark:hover:bg-slate-800"
-                                        }`}
+                                            }`}
                                     >
                                         <Icon size={19} />
                                         {item.title}

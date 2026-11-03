@@ -39,13 +39,12 @@ const JoinEventCard: React.FC<JoinEventCardProps> = ({ event }) => {
 
     const [isLoading, setIsLoading] = useState(false);
 
-    
     const handleJoinEvent = async () => {
         if (!session?.user) {
             router.push("/login");
             return;
         }
-        
+
         setIsLoading(true);
 
         try {
@@ -64,7 +63,6 @@ const JoinEventCard: React.FC<JoinEventCardProps> = ({ event }) => {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
                     },
-
                     body: JSON.stringify({
                         eventId: event._id,
                         eventTitle: event.title,
@@ -101,28 +99,31 @@ const JoinEventCard: React.FC<JoinEventCardProps> = ({ event }) => {
     const formattedDate = formatEventDate(event.eventDate);
 
     return (
-        <div className="overflow-hidden rounded-3xl border border-blue-100 bg-white shadow-xl shadow-blue-100/50 dark:border-slate-700 dark:bg-[#172033] dark:shadow-blue-950/20">
+        <div className="w-full min-w-0 overflow-hidden rounded-2xl sm:rounded-3xl border border-blue-100 bg-white shadow-lg shadow-blue-100/40 dark:border-slate-700 dark:bg-[#172033] dark:shadow-blue-950/20">
 
             {/* Gradient Header */}
-            <div className="relative overflow-hidden bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-600 p-6 text-white">
+            <div className="relative overflow-hidden bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-600 px-4 py-5 text-white sm:px-6 sm:py-6">
                 <div className="absolute -right-8 -top-10 h-36 w-36 rounded-full border-[20px] border-white/10" />
                 <div className="absolute -bottom-12 -left-8 h-32 w-32 rounded-full bg-indigo-400/20 blur-xl" />
 
                 <div className="relative">
-                    <div className="mb-5 flex items-center justify-between">
-                        <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-xs font-semibold backdrop-blur">
-                            <Sparkles size={14} />
+                    <div className="mb-4 flex items-center justify-between gap-2 sm:mb-5">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/15 px-2.5 py-1.5 text-[10px] font-semibold backdrop-blur sm:gap-2 sm:px-3 sm:text-xs">
+                            <Sparkles size={13} />
                             Event Registration
                         </span>
 
-                        <ShieldCheck size={23} className="text-blue-100" />
+                        <ShieldCheck
+                            size={21}
+                            className="shrink-0 text-blue-100 sm:size-6"
+                        />
                     </div>
 
-                    <h3 className="text-2xl font-extrabold">
+                    <h3 className="text-xl font-extrabold sm:text-2xl">
                         Ready to Join?
                     </h3>
 
-                    <p className="mt-2 text-sm leading-6 text-blue-100">
+                    <p className="mt-2 max-w-sm text-xs leading-5 text-blue-100 sm:text-sm sm:leading-6">
                         Be part of something meaningful. Reserve your
                         spot and join the community!
                     </p>
@@ -130,50 +131,51 @@ const JoinEventCard: React.FC<JoinEventCardProps> = ({ event }) => {
             </div>
 
             {/* Card Body */}
-            <div className="space-y-6 p-6">
+            <div className="space-y-5 p-4 sm:space-y-6 sm:p-6">
 
                 {/* Event Information */}
-                <div>
-                    <p className="mb-2 text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                <div className="min-w-0">
+                    <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 sm:text-xs">
                         You&apos;re joining
                     </p>
 
-                    <h4 className="text-lg font-extrabold leading-snug text-slate-900 dark:text-white">
+                    <h4 className="break-words text-base font-extrabold leading-snug text-slate-900 dark:text-white sm:text-lg">
                         {event.title}
                     </h4>
 
-                    <span className="mt-3 inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
+                    <span className="mt-3 inline-flex max-w-full rounded-full bg-blue-50 px-3 py-1 text-[10px] font-semibold text-blue-700 dark:bg-blue-500/10 dark:text-blue-400 sm:text-xs">
                         {event.eventType}
                     </span>
                 </div>
 
                 {/* Event Details */}
-                <div className="space-y-4 rounded-2xl bg-blue-50/70 p-4 dark:bg-slate-800/60">
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-blue-600 shadow-sm dark:bg-slate-700 dark:text-blue-400">
-                            <CalendarDays size={19} />
+                <div className="space-y-3 rounded-xl bg-blue-50/70 p-3 sm:space-y-4 sm:rounded-2xl sm:p-4 dark:bg-slate-800/60">
+
+                    <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-blue-600 shadow-sm sm:h-10 sm:w-10 sm:rounded-xl dark:bg-slate-700 dark:text-blue-400">
+                            <CalendarDays size={18} />
                         </div>
 
-                        <div>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                        <div className="min-w-0">
+                            <p className="text-[10px] text-slate-500 dark:text-slate-400 sm:text-xs">
                                 Event Date
                             </p>
-                            <p className="text-sm font-bold text-slate-800 dark:text-white">
+                            <p className="break-words text-xs font-bold text-slate-800 dark:text-white sm:text-sm">
                                 {formattedDate}
                             </p>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-blue-600 shadow-sm dark:bg-slate-700 dark:text-blue-400">
-                            <MapPin size={19} />
+                    <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-blue-600 shadow-sm sm:h-10 sm:w-10 sm:rounded-xl dark:bg-slate-700 dark:text-blue-400">
+                            <MapPin size={18} />
                         </div>
 
-                        <div className="min-w-0">
-                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                        <div className="min-w-0 flex-1">
+                            <p className="text-[10px] text-slate-500 dark:text-slate-400 sm:text-xs">
                                 Location
                             </p>
-                            <p className="truncate text-sm font-bold text-slate-800 dark:text-white">
+                            <p className="break-words text-xs font-bold text-slate-800 dark:text-white sm:text-sm">
                                 {event.location}
                             </p>
                         </div>
@@ -181,9 +183,13 @@ const JoinEventCard: React.FC<JoinEventCardProps> = ({ event }) => {
                 </div>
 
                 {/* Registration Status */}
-                <div className="flex items-start gap-3">
-                    <CheckCircle2 size={19} className="mt-0.5 shrink-0 text-emerald-500" />
-                    <p className="text-xs leading-6 text-slate-500 dark:text-slate-400">
+                <div className="flex items-start gap-2.5 sm:gap-3">
+                    <CheckCircle2
+                        size={18}
+                        className="mt-0.5 shrink-0 text-emerald-500"
+                    />
+
+                    <p className="text-[11px] leading-5 text-slate-500 dark:text-slate-400 sm:text-xs sm:leading-6">
                         Your registration information will be saved
                         securely when you join this event.
                     </p>
@@ -193,11 +199,11 @@ const JoinEventCard: React.FC<JoinEventCardProps> = ({ event }) => {
                 <Button
                     onClick={handleJoinEvent}
                     disabled={isLoading || isPending}
-                    className="h-12 w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-sm font-bold text-white shadow-lg shadow-blue-200 transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-blue-300 disabled:opacity-60 dark:shadow-none"
+                    className="h-11 w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-xs font-bold text-white shadow-lg shadow-blue-200 transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-blue-300 disabled:opacity-60 sm:h-12 sm:text-sm dark:shadow-none"
                 >
                     {isLoading ? (
                         <>
-                            <Loader2 size={18} className="mr-2 animate-spin" />
+                            <Loader2 size={17} className="mr-2 animate-spin" />
                             Joining Event...
                         </>
                     ) : isPending ? (
@@ -205,14 +211,14 @@ const JoinEventCard: React.FC<JoinEventCardProps> = ({ event }) => {
                     ) : (
                         <>
                             Join This Event
-                            <ArrowRight size={18} className="ml-2" />
+                            <ArrowRight size={17} className="ml-2" />
                         </>
                     )}
                 </Button>
 
                 {/* Footer */}
-                <div className="border-t border-blue-100 pt-4 text-center dark:border-slate-700">
-                    <p className="text-xs leading-5 text-slate-400">
+                <div className="border-t border-blue-100 pt-3 text-center sm:pt-4 dark:border-slate-700">
+                    <p className="text-[10px] leading-5 text-slate-400 sm:text-xs">
                         By joining, you agree to participate responsibly
                         and respect the community.
                     </p>

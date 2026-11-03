@@ -1,6 +1,17 @@
+
+"use client";
+
 import React from "react";
 import Image from "next/image";
-import { ArrowUpRight, Images } from "lucide-react";
+import { ArrowUpRight, Images, ChevronLeft, ChevronRight } from "lucide-react";
+
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 interface GalleryItem {
   id: number;
@@ -72,49 +83,66 @@ const Gallery = () => {
           </p>
         </div>
 
-        {/* Gallery Grid */}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Carousel */}
+        <Carousel
+          opts={{
+            align: "start",
+            loop: true,
+          }}
+          className="mx-auto w-full"
+        >
+          <CarouselContent className="-ml-4">
 
-          {galleryImages.map((item) => (
-            <div
-              key={item.id}
-              className="group relative isolate overflow-hidden rounded-2xl bg-slate-200 shadow-sm dark:bg-slate-900 dark:border dark:border-slate-800"
-            >
-              {/* Image */}
-              <div className="relative aspect-[4/3] w-full">
-                <Image
-                  src={item.image}
-                  alt={item.title}
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-              </div>
+            {galleryImages.map((item) => (
+              <CarouselItem
+                key={item.id}
+                className="pl-4 sm:basis-1/2 lg:basis-1/3"
+              >
+                <div className="group relative isolate overflow-hidden rounded-2xl bg-slate-200 shadow-sm dark:border dark:border-slate-800 dark:bg-slate-900">
 
-              {/* Overlay */}
-              <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/10 to-transparent p-5 sm:p-6">
-
-                <span className="mb-2 w-fit rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white dark:bg-blue-700">
-                  {item.category}
-                </span>
-
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-lg font-bold text-white sm:text-xl">
-                    {item.title}
-                  </h3>
-
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition group-hover:bg-blue-600">
-                    <ArrowUpRight size={19} />
+                  {/* Image */}
+                  <div className="relative aspect-[4/3] w-full">
+                    <Image
+                      src={item.image}
+                      alt={item.title}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
                   </div>
+
+                  {/* Overlay */}
+                  <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/10 to-transparent p-5 sm:p-6">
+
+                    <span className="mb-2 w-fit rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white dark:bg-blue-700">
+                      {item.category}
+                    </span>
+
+                    <div className="flex items-center justify-between gap-3">
+                      <h3 className="text-lg font-bold text-white sm:text-xl">
+                        {item.title}
+                      </h3>
+
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition group-hover:bg-blue-600">
+                        <ArrowUpRight size={19} />
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
+              </CarouselItem>
+            ))}
 
-              </div>
-            </div>
-          ))}
+          </CarouselContent>
 
-        </div>
+          {/* Navigation */}
+          <div className="mt-8 flex items-center justify-center gap-3">
+            <CarouselPrevious className="static translate-y-0 h-10 w-10 border-slate-200 bg-white text-slate-700 hover:bg-blue-600 hover:text-white dark:border-slate-700 dark:bg-slate-900 dark:text-white" />
+            <CarouselNext className="static translate-y-0 h-10 w-10 border-slate-200 bg-white text-slate-700 hover:bg-blue-600 hover:text-white dark:border-slate-700 dark:bg-slate-900 dark:text-white" />
+          </div>
+        </Carousel>
 
-        {/* Footer Text */}
+        {/* Footer */}
         <p className="mt-10 text-center text-sm text-slate-500 dark:text-slate-400">
           Together, we create stories worth sharing.
         </p>

@@ -207,7 +207,7 @@ const Footer = () => {
           </div>
 
           <Link
-            href="/events"
+            href="/upcomming-events"
             className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500"
           >
             Explore Events
