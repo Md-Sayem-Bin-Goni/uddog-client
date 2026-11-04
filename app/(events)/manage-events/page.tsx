@@ -40,6 +40,7 @@ const ManageEventsPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [search, setSearch] = useState("");
     const [error, setError] = useState("");
+    const [reload, setReload] = useState(0);
 
     const email = session?.user?.email;
 
@@ -102,7 +103,7 @@ const ManageEventsPage = () => {
 
         return () => controller.abort();
 
-    }, [email]);
+    }, [email, reload]);
 
     // Search Events
     const filteredEvents = useMemo(() => {
@@ -392,6 +393,9 @@ const ManageEventsPage = () => {
                                     <EventManageCard
                                         key={event._id}
                                         event={event}
+                                        onRefresh={() =>
+                                            setReload((prev) => prev + 1)
+                                        }
                                     />
                                 ))}
                             </div>

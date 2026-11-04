@@ -24,7 +24,13 @@ interface EventItem {
     eventDate: string;
 }
 
-const EventManageCard = ({ event }: { event: EventItem }) => {
+const EventManageCard = ({
+    event,
+    onRefresh,
+}: {
+    event: EventItem;
+    onRefresh?: () => void;
+}) => {
     const formattedDate = formatEventDate(event.eventDate);
 
     return (
@@ -104,9 +110,9 @@ const EventManageCard = ({ event }: { event: EventItem }) => {
                         View
                     </Link>
 
-                    <EditDialog event={event} />
+                    <EditDialog event={event} onSuccess={onRefresh} />
 
-                    <DeleteDialog eventId={event._id} />
+                    <DeleteDialog eventId={event._id} onSuccess={onRefresh} />
 
                 </div>
             </div>
